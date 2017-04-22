@@ -1,0 +1,9 @@
+{"Star":
+[
+	{"star":1, "star_attribute":{"4":0,"5":0,"6":0}},
+	{"star":2, "star_attribute":{"4":40,"5":16,"6":144}},
+	{"star":3, "star_attribute":{"4":80,"5":32,"6":288}},
+	{"star":4, "star_attribute":{"4":120,"5":48,"6":432}},
+	{"star":5, "star_attribute":{"4":160,"5":64,"6":576}}
+]
+}

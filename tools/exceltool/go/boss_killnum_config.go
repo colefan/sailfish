@@ -1,0 +1,170 @@
+package config
+type Boss_killnum struct{
+	Items []*Boss_killnum_Item
+}
+
+type Boss_killnum_Item struct{
+	Id int
+	Lossblood_min int
+	Lossblood_max int
+	Round_min int
+	Round_max int
+	Kill_num int
+}
+
+var InstBoss_killnum *Boss_killnum
+
+func init(){
+	item := &Boss_killnum_Item{}
+	item.Id = 1
+	item.Lossblood_min = 0
+	item.Lossblood_max = 199
+	item.Round_min = 1
+	item.Round_max = 2
+	item.Kill_num = 16
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 2
+	item.Lossblood_min = 0
+	item.Lossblood_max = 199
+	item.Round_min = 3
+	item.Round_max = 4
+	item.Kill_num = 15
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 3
+	item.Lossblood_min = 0
+	item.Lossblood_max = 199
+	item.Round_min = 5
+	item.Round_max = 30
+	item.Kill_num = 14
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 4
+	item.Lossblood_min = 200
+	item.Lossblood_max = 499
+	item.Round_min = 1
+	item.Round_max = 2
+	item.Kill_num = 14
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 5
+	item.Lossblood_min = 200
+	item.Lossblood_max = 499
+	item.Round_min = 3
+	item.Round_max = 30
+	item.Kill_num = 13
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 6
+	item.Lossblood_min = 500
+	item.Lossblood_max = 999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 12
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 7
+	item.Lossblood_min = 1000
+	item.Lossblood_max = 1499
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 11
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 8
+	item.Lossblood_min = 1500
+	item.Lossblood_max = 1999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 10
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 9
+	item.Lossblood_min = 2000
+	item.Lossblood_max = 2499
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 9
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 10
+	item.Lossblood_min = 2500
+	item.Lossblood_max = 2999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 8
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 11
+	item.Lossblood_min = 3000
+	item.Lossblood_max = 3999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 7
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 12
+	item.Lossblood_min = 4000
+	item.Lossblood_max = 4999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 6
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 13
+	item.Lossblood_min = 5000
+	item.Lossblood_max = 5999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 5
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 14
+	item.Lossblood_min = 6000
+	item.Lossblood_max = 6999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 4
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 15
+	item.Lossblood_min = 7000
+	item.Lossblood_max = 8499
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 3
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 16
+	item.Lossblood_min = 8500
+	item.Lossblood_max = 9999
+	item.Round_min = 1
+	item.Round_max = 30
+	item.Kill_num = 2
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 17
+	item.Lossblood_min = 10000
+	item.Lossblood_max = 10000
+	item.Round_min = 5
+	item.Round_max = 30
+	item.Kill_num = 2
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 18
+	item.Lossblood_min = 10000
+	item.Lossblood_max = 10000
+	item.Round_min = 2
+	item.Round_max = 4
+	item.Kill_num = 1
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+	item = &Boss_killnum_Item{}
+	item.Id = 19
+	item.Lossblood_min = 10000
+	item.Lossblood_max = 10000
+	item.Round_min = 1
+	item.Round_max = 1
+	item.Kill_num = 0
+	InstBoss_killnum.Items = append(InstBoss_killnum.Items,item)
+}

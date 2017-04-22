@@ -7,6 +7,9 @@ import (
 
 func main() {
 	p := codec.NewFixHeadProtocol(4)
+	server := network.NewServer("tcp", "0.0.0.0:7777", p, 100, 0,network.)
+	server.SetQos(true)
+
 	server, err := network.NewTCPServer("tcp", "0.0.0.0:11111", p, 100)
 	if err != nil {
 		return

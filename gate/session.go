@@ -1,98 +1,83 @@
 package gate
 
+import "github.com/colefan/sailfish/network"
+
 const (
-	statusInit   = 0
-	statusSet    = 1
-	statusClosed = 10
+	StatusInit      = 0
+	StatusConnected = 1
+	StatusLogined   = 2
+	StatusSet       = 3
+	StatusClosed    = 10
 )
 
-//GateClientData client data
-type GateClientData struct {
-	nUID   uint64
-	strUID string
-	status int
-}
-
-func (user *GateClientData) SetUID(id uint64) {
-	user.nUID = id
-}
-
-func (user *GateClientData) SetStringUID(id string) {
-	user.strUID = id
-}
-
-func (user *GateClientData) UID() (uint64, string) {
-	return user.nUID, user.strUID
-}
-
-func (user *GateClientData) SetStatus(status int) {
-	user.status = status
-}
-
-func (user *GateClientData) Status() int {
-	return user.status
+//ClientUserData client data
+type ClientUserData struct {
+	UID                uint64
+	StrUID             string
+	CurServerID        uint64
+	OpenID             string
+	ValidCode          string
+	CurServerSession   *network.TCPSession
+	LoginServerSession *network.TCPSession
 }
 
 const (
-	serverInit     = 0
-	serverRegisted = 1
-	serverOffline  = 2
-	serverClosed   = 3
+	ServerInit      = 0
+	ServerConnected = 1
+	ServerRegisted  = 2
+	ServerOffline   = 3
+	ServerClosed    = 4
 )
 
-type serverData struct {
-	serverType      int
-	serverStatus    int
-	serverID        uint64
-	strServerID     string
-	serverUserCount int
-	serverMaxCount  int
+//ServerUserData server user data
+type ServerUserData struct {
+	Type         int    //服务器类型
+	SID          uint64 //服务器ID
+	StrSID       string //服务器ID
+	userCount    int    //用户数
+	warningCount int    //警告用户数
+	maxCount     int    //最大用户数
 }
 
-func newServerData() *serverData {
-	return &serverData{serverMaxCount: 3000}
+//NewServerUserData creator
+func NewServerUserData() *ServerUserData {
+	return &ServerUserData{maxCount: 3000, warningCount: 2500}
 }
 
-func (user *serverData) SetServerType(sType int) {
-	user.serverType = sType
+//AddUserCount ++
+func (user *ServerUserData) AddUserCount() {
+	user.userCount++
 }
 
-func (user *serverData) GetServerType() int {
-	return user.serverType
+//GetUserCount getter
+func (user *ServerUserData) GetUserCount() int {
+	return user.userCount
 }
 
-func (user *serverData) SetServerStatus(status int) {
-	user.serverStatus = status
+//SetMaxCount setter
+func (user *ServerUserData) SetMaxCount(count int) {
+	user.maxCount = count
 }
 
-func (user *serverData) GetServerStatus() int {
-	return user.serverStatus
+//GetMaxCount getter
+func (user *ServerUserData) GetMaxCount() int {
+	return user.maxCount
 }
 
-func (user *serverData) SetID(id uint64) {
-	user.serverID = id
+//WarningCaps setter
+func (user *ServerUserData) WarningCaps(less int) {
+	user.warningCount = user.maxCount - less
+	if user.warningCount <= 100 {
+		user.warningCount = user.maxCount
+	}
+
 }
 
-func (user *serverData) SetStringID(strID string) {
-	user.strServerID = strID
-}
+//IsWarning getter
+func (user *ServerUserData) IsWarning() bool {
+	if user.userCount >= user.maxCount {
+		return true
+	}
+	return false
 
-func (user *serverData) GetID() (uint64, string) {
-	return user.serverID, user.strServerID
-}
-
-func (user *serverData) AddUserCount() {
-	user.serverUserCount++
-}
-
-func (user *serverData) GetUserCount() int {
-	return user.serverUserCount
-}
-
-func (user *serverData) SetMaxCount(count int) {
-	user.serverMaxCount = count
-}
-
-func (user *serverData) GetMaxCount() int {
-	return user.serverMaxCount
 }

@@ -1,0 +1,24 @@
+{"Building_num":
+[
+	{"command_level":1, "farmland_num":1, "house_num":1, "mill_num":0, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":2, "farmland_num":1, "house_num":1, "mill_num":0, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":3, "farmland_num":2, "house_num":1, "mill_num":0, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":4, "farmland_num":2, "house_num":2, "mill_num":0, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":5, "farmland_num":3, "house_num":2, "mill_num":0, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":6, "farmland_num":3, "house_num":3, "mill_num":1, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":7, "farmland_num":4, "house_num":3, "mill_num":1, "gunsmithy_num":1, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":8, "farmland_num":4, "house_num":4, "mill_num":2, "gunsmithy_num":2, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":9, "farmland_num":4, "house_num":4, "mill_num":2, "gunsmithy_num":2, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":10, "farmland_num":5, "house_num":5, "mill_num":2, "gunsmithy_num":2, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":11, "farmland_num":5, "house_num":5, "mill_num":3, "gunsmithy_num":2, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":12, "farmland_num":6, "house_num":6, "mill_num":3, "gunsmithy_num":2, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":13, "farmland_num":6, "house_num":6, "mill_num":3, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":14, "farmland_num":7, "house_num":7, "mill_num":3, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":15, "farmland_num":7, "house_num":7, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":16, "farmland_num":8, "house_num":8, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":17, "farmland_num":8, "house_num":8, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":18, "farmland_num":8, "house_num":8, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":19, "farmland_num":8, "house_num":8, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1},
+	{"command_level":20, "farmland_num":8, "house_num":8, "mill_num":4, "gunsmithy_num":3, "ranch_num":0, "shop_num":0, "steel_plant_num":1}
+]
+}

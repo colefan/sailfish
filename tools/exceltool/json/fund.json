@@ -1,0 +1,6 @@
+{"Fund":
+[
+	{"fund_id":1001, "fund_name":"text_V1_fund", "need_viplv":1, "fund_price":500, "time_limit":3, "day1_reward":[[1,1,300]], "day2_reward":[[1,1,200]], "day3_reward":[[1,1,200]], "day4_reward":[[1,1,200]], "day5_reward":[[1,1,200]], "day6_reward":[[1,1,200]], "day7_reward":[[1,1,200],[202,10019,1]]},
+	{"fund_id":1002, "fund_name":"text_V5_fund", "need_viplv":5, "fund_price":1500, "time_limit":3, "day1_reward":[[1,1,900]], "day2_reward":[[1,1,600]], "day3_reward":[[1,1,600]], "day4_reward":[[1,1,600]], "day5_reward":[[1,1,600]], "day6_reward":[[1,1,600]], "day7_reward":[[1,1,600],[202,10005,1]]}
+]
+}

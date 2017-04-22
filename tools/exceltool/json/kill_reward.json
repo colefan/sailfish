@@ -1,0 +1,21 @@
+{"Kill_reward":
+[
+	{"id":1, "fightingcapacity_pro":0, "gongxun_pro":50000},
+	{"id":2, "fightingcapacity_pro":4000, "gongxun_pro":40000},
+	{"id":3, "fightingcapacity_pro":5000, "gongxun_pro":30000},
+	{"id":4, "fightingcapacity_pro":6000, "gongxun_pro":20000},
+	{"id":5, "fightingcapacity_pro":7000, "gongxun_pro":15000},
+	{"id":6, "fightingcapacity_pro":8000, "gongxun_pro":12000},
+	{"id":7, "fightingcapacity_pro":9000, "gongxun_pro":10000},
+	{"id":8, "fightingcapacity_pro":11000, "gongxun_pro":9000},
+	{"id":9, "fightingcapacity_pro":12000, "gongxun_pro":8000},
+	{"id":10, "fightingcapacity_pro":13000, "gongxun_pro":7000},
+	{"id":11, "fightingcapacity_pro":14000, "gongxun_pro":6000},
+	{"id":12, "fightingcapacity_pro":15500, "gongxun_pro":5000},
+	{"id":13, "fightingcapacity_pro":17000, "gongxun_pro":4000},
+	{"id":14, "fightingcapacity_pro":18500, "gongxun_pro":3000},
+	{"id":15, "fightingcapacity_pro":20000, "gongxun_pro":2000},
+	{"id":16, "fightingcapacity_pro":30000, "gongxun_pro":1000},
+	{"id":17, "fightingcapacity_pro":40000, "gongxun_pro":0}
+]
+}

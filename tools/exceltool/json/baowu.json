@@ -1,0 +1,24 @@
+{"Baowu":
+[
+	{"id":900101, "herolevel":40, "pos":1, "color":1, "attribute1":{"4":100,"1":1}, "cost_coin":4000, "expend":{"210001":10}, "get_way":[1,2,3]},
+	{"id":900102, "herolevel":40, "pos":2, "color":1, "attribute1":{"7":3,"2":1}, "cost_coin":4000, "expend":{"210002":10}, "get_way":[1,2,3]},
+	{"id":900103, "herolevel":40, "pos":3, "color":1, "attribute1":{"6":400,"2":1}, "cost_coin":4000, "expend":{"210003":10}, "get_way":[1,2,3]},
+	{"id":900104, "herolevel":40, "pos":4, "color":1, "attribute1":{"5":60,"3":1}, "cost_coin":4000, "expend":{"210004":10}, "get_way":[1,2,3]},
+	{"id":900201, "herolevel":45, "pos":1, "color":2, "attribute1":{"4":120,"1":1}, "cost_coin":25000, "expend":{"210005":20}, "get_way":[1,2,3]},
+	{"id":900202, "herolevel":45, "pos":2, "color":2, "attribute1":{"7":4,"3":1}, "cost_coin":25000, "expend":{"210006":20}, "get_way":[1,2,3]},
+	{"id":900203, "herolevel":45, "pos":3, "color":2, "attribute1":{"6":500,"2":1}, "cost_coin":25000, "expend":{"210007":20}, "get_way":[1,2,3]},
+	{"id":900204, "herolevel":45, "pos":4, "color":2, "attribute1":{"5":70,"3":1}, "cost_coin":25000, "expend":{"210008":20}, "get_way":[1,2,3]},
+	{"id":900301, "herolevel":55, "pos":1, "color":3, "attribute1":{"4":140,"1":2}, "cost_coin":100000, "expend":{"210009":40}, "get_way":[1,2,3]},
+	{"id":900302, "herolevel":55, "pos":2, "color":3, "attribute1":{"7":5,"2":2}, "cost_coin":100000, "expend":{"210010":40}, "get_way":[1,2,3]},
+	{"id":900303, "herolevel":55, "pos":3, "color":3, "attribute1":{"6":600,"3":2}, "cost_coin":100000, "expend":{"210011":40}, "get_way":[1,2,3]},
+	{"id":900304, "herolevel":55, "pos":4, "color":3, "attribute1":{"5":80,"2":2}, "cost_coin":100000, "expend":{"210012":40}, "get_way":[1,2,3]},
+	{"id":900401, "herolevel":65, "pos":1, "color":4, "attribute1":{"4":160,"7":6,"1":2}, "cost_coin":400000, "expend":{"210013":60}, "get_way":[1,2,3]},
+	{"id":900402, "herolevel":65, "pos":2, "color":4, "attribute1":{"6":700,"7":6,"3":2}, "cost_coin":400000, "expend":{"210014":60}, "get_way":[1,2,3]},
+	{"id":900403, "herolevel":65, "pos":3, "color":4, "attribute1":{"6":700,"2":2,"3":2}, "cost_coin":400000, "expend":{"210015":60}, "get_way":[1,2,3]},
+	{"id":900404, "herolevel":65, "pos":4, "color":4, "attribute1":{"4":160,"5":90,"3":2}, "cost_coin":400000, "expend":{"210016":60}, "get_way":[1,2,3]},
+	{"id":900501, "herolevel":75, "pos":1, "color":5, "attribute1":{"4":180,"7":7,"1":3}, "cost_coin":1000000, "expend":{"210017":80}, "get_way":[1,2,3]},
+	{"id":900502, "herolevel":75, "pos":2, "color":5, "attribute1":{"7":7,"2":3,"3":3}, "cost_coin":1000000, "expend":{"210018":80}, "get_way":[1,2,3]},
+	{"id":900503, "herolevel":75, "pos":3, "color":5, "attribute1":{"6":800,"1":3,"2":3}, "cost_coin":1000000, "expend":{"210019":80}, "get_way":[1,2,3]},
+	{"id":900504, "herolevel":75, "pos":4, "color":5, "attribute1":{"4":180,"5":110,"1":3}, "cost_coin":1000000, "expend":{"210020":80}, "get_way":[1,2,3]}
+]
+}

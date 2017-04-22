@@ -1,0 +1,20 @@
+{"Limithd_jianzhudashi":
+[
+	{"id":60001, "building_id":1, "number":1, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60002, "building_id":2, "number":1, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60003, "building_id":3, "number":1, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60004, "building_id":4, "number":2, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60005, "building_id":5, "number":2, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60006, "building_id":9, "number":1, "building_lv":3, "rewards":[[2,2,2000],[201,405001,1]]},
+	{"id":60007, "building_id":1, "number":1, "building_lv":5, "rewards":[[2,2,4000],[201,405001,2]]},
+	{"id":60008, "building_id":4, "number":2, "building_lv":5, "rewards":[[2,2,4000],[201,405001,2]]},
+	{"id":60009, "building_id":5, "number":3, "building_lv":5, "rewards":[[2,2,4000],[201,405001,2]]},
+	{"id":60010, "building_id":4, "number":3, "building_lv":5, "rewards":[[2,2,4000],[201,405001,2]]},
+	{"id":60011, "building_id":1, "number":1, "building_lv":6, "rewards":[[2,2,8000],[201,405001,2]]},
+	{"id":60012, "building_id":1, "number":1, "building_lv":8, "rewards":[[2,2,20000],[201,405001,3]]},
+	{"id":60013, "building_id":1, "number":1, "building_lv":9, "rewards":[[2,2,30000],[201,405001,3]]},
+	{"id":60014, "building_id":4, "number":4, "building_lv":8, "rewards":[[2,2,8000],[201,405001,3]]},
+	{"id":60015, "building_id":5, "number":4, "building_lv":8, "rewards":[[2,2,8000],[201,405001,3]]},
+	{"id":60016, "building_id":9, "number":2, "building_lv":8, "rewards":[[2,2,8000],[201,405001,3]]}
+]
+}

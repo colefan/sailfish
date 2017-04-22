@@ -25,6 +25,11 @@ type sessionMap struct {
 	sessions map[uint64]*TCPSession
 }
 
+//RemoveSession remove session from manager
+func (manager *SessionMgr) RemoveSession(session *TCPSession) {
+	manager.delSession(session)
+}
+
 func (manager *SessionMgr) delSession(session *TCPSession) {
 	if manager.disposeFlag {
 		//fmt.Println("delete in flag")
@@ -74,7 +79,8 @@ func (manager *SessionMgr) Dispose() {
 			smap := &manager.sessionMaps[i]
 			smap.Lock()
 			for _, session := range smap.sessions {
-				session.Close()
+				session.ForceClose()
+				manager.delSession(session)
 			}
 			smap.Unlock()
 		}

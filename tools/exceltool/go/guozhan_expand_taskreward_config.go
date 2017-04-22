@@ -1,0 +1,138 @@
+package config
+type Guozhan_expand_taskreward struct{
+	Items []*Guozhan_expand_taskreward_Item
+}
+
+type Guozhan_expand_taskreward_Item struct{
+	Rank int
+	Rewards [][]int
+}
+
+var InstGuozhan_expand_taskreward *Guozhan_expand_taskreward
+
+func init(){
+	item := &Guozhan_expand_taskreward_Item{}
+	item.Rank = 1
+	item.Rewards = [][]int{{6,6,1000},{2,2,60000},{18,18,48000},{17,17,15}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 2
+	item.Rewards = [][]int{{6,6,950},{2,2,56300},{18,18,45000},{17,17,14}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 3
+	item.Rewards = [][]int{{6,6,900},{2,2,52500},{18,18,42000},{17,17,13}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 4
+	item.Rewards = [][]int{{6,6,850},{2,2,50300},{18,18,39000},{17,17,12}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 5
+	item.Rewards = [][]int{{6,6,800},{2,2,48000},{18,18,36000},{17,17,10}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 6
+	item.Rewards = [][]int{{6,6,750},{2,2,45800},{18,18,30000},{17,17,9}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 7
+	item.Rewards = [][]int{{6,6,700},{2,2,43500},{18,18,30000},{17,17,8}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 8
+	item.Rewards = [][]int{{6,6,650},{2,2,41300},{18,18,30000},{17,17,7}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 9
+	item.Rewards = [][]int{{6,6,600},{2,2,39000},{18,18,30000},{17,17,7}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 10
+	item.Rewards = [][]int{{6,6,550},{2,2,37500},{18,18,30000},{17,17,7}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 11
+	item.Rewards = [][]int{{6,6,500},{2,2,36000},{18,18,24000},{17,17,6}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 12
+	item.Rewards = [][]int{{6,6,475},{2,2,34500},{18,18,24000},{17,17,6}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 13
+	item.Rewards = [][]int{{6,6,450},{2,2,33000},{18,18,24000},{17,17,6}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 14
+	item.Rewards = [][]int{{6,6,425},{2,2,31500},{18,18,24000},{17,17,5}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 15
+	item.Rewards = [][]int{{6,6,400},{2,2,30000},{18,18,24000},{17,17,5}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 16
+	item.Rewards = [][]int{{6,6,375},{2,2,28500},{18,18,18000},{17,17,5}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 17
+	item.Rewards = [][]int{{6,6,350},{2,2,27000},{18,18,18000},{17,17,4}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 18
+	item.Rewards = [][]int{{6,6,325},{2,2,25500},{18,18,18000},{17,17,4}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 19
+	item.Rewards = [][]int{{6,6,300},{2,2,24000},{18,18,18000},{17,17,4}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 20
+	item.Rewards = [][]int{{6,6,275},{2,2,22500},{18,18,18000},{17,17,4}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 25
+	item.Rewards = [][]int{{6,6,250},{2,2,18800},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 30
+	item.Rewards = [][]int{{6,6,250},{2,2,15000},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 35
+	item.Rewards = [][]int{{6,6,250},{2,2,11300},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 40
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 45
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 50
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 60
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 70
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 80
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 90
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+	item = &Guozhan_expand_taskreward_Item{}
+	item.Rank = 100
+	item.Rewards = [][]int{{6,6,250},{2,2,7500},{18,18,12000}}
+	InstGuozhan_expand_taskreward.Items = append(InstGuozhan_expand_taskreward.Items,item)
+}

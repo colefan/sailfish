@@ -7,12 +7,23 @@ import (
 //TCPClient cls
 type TCPClient struct {
 	session    *TCPSession
-	dispatcher *PackDispatcher
+	dispatcher PackDispatcherInf
+	mode       int
 }
 
-func newTCPClient(conn net.Conn, codec Codec, sendChanSize int) *TCPClient {
+//Start  start client
+func (c *TCPClient) Start() {
+	if c.mode == ModeEvent {
+		c.session.Start(false)
+	} else {
+		c.session.Start(true)
+	}
+}
+
+func newTCPClient(conn net.Conn, codec Codec, sendChanSize int, mode int, dispatcher PackDispatcherInf) *TCPClient {
 	client := &TCPClient{
-		dispatcher: newPackDispatcher(),
+		dispatcher: dispatcher,
+		mode:       mode,
 	}
 	session := newTCPSession(conn, codec, sendChanSize, client.dispatcher)
 	client.session = session
@@ -21,12 +32,12 @@ func newTCPClient(conn net.Conn, codec Codec, sendChanSize int) *TCPClient {
 }
 
 //SetPackDispatcher setter
-func (client *TCPClient) SetPackDispatcher(dispatcher *PackDispatcher) {
+func (client *TCPClient) SetPackDispatcher(dispatcher PackDispatcherInf) {
 	client.dispatcher = dispatcher
 }
 
 //GetPackDispatcher getter
-func (client *TCPClient) GetPackDispatcher() *PackDispatcher {
+func (client *TCPClient) GetPackDispatcher() PackDispatcherInf {
 	return client.dispatcher
 }
 
@@ -35,13 +46,12 @@ func (client *TCPClient) WriteMsg(msg PackInf) {
 	client.session.WriteMsg(msg)
 }
 
+//ReadMsg read msg
+func (client *TCPClient) ReadMsg() (PackInf, error) {
+	return client.session.ReadMsg()
+}
+
 //Close close
 func (client *TCPClient) Close() {
 	client.session.Close()
-}
-
-//Loop logic loop
-func (client *TCPClient) Loop(handler HandleFunc) {
-	//TODO
-	handler(client.session)
 }

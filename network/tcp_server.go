@@ -38,26 +38,29 @@ func accept(listener net.Listener) (net.Conn, error) {
 //TCPServer cls
 type TCPServer struct {
 	sessMgr             *SessionMgr
-	dispatcher          *PackDispatcher
+	dispatcher          PackDispatcherInf
 	listener            net.Listener
 	sessionSendChanBuff int
 	protocol            Protocol
 	id                  uint64
 	serverID            string
+	mode                int
 }
 
-func newTCPServer(l net.Listener, p Protocol, sendChanSize int) *TCPServer {
+func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispacher PackDispatcherInf) *TCPServer {
 	s := &TCPServer{
 		listener:            l,
 		protocol:            p,
 		sessionSendChanBuff: sendChanSize,
+		mode:                mode,
+		dispatcher:          dispacher,
 	}
 	if s.sessionSendChanBuff <= 0 {
 		s.sessionSendChanBuff = defaultSendChannelBufferSize
 	}
 
 	s.sessMgr = newManager()
-	s.dispatcher = newPackDispatcher()
+	//s.dispatcher = newPackDispatcher()
 	return s
 }
 
@@ -67,12 +70,12 @@ func (s *TCPServer) GetSessionMgr() *SessionMgr {
 }
 
 //GetPackDispatcher getter
-func (s *TCPServer) GetPackDispatcher() *PackDispatcher {
+func (s *TCPServer) GetPackDispatcher() PackDispatcherInf {
 	return s.dispatcher
 }
 
 //SetPackDispatcher setter
-func (s *TCPServer) SetPackDispatcher(dispatcher *PackDispatcher) {
+func (s *TCPServer) SetPackDispatcher(dispatcher PackDispatcherInf) {
 	s.dispatcher = dispatcher
 }
 
@@ -98,7 +101,10 @@ func (s *TCPServer) GetServerID() string {
 
 //Serve server loop
 func (s *TCPServer) Serve(handler HandleFunc) {
+	fmt.Println("TcpServer Listen " + s.listener.Addr().String())
+
 	for {
+
 		conn, err := accept(s.listener)
 		if err != nil {
 			//TODO LOG
@@ -130,9 +136,19 @@ func (s *TCPServer) Serve(handler HandleFunc) {
 //Stop stop and distroy server
 func (s *TCPServer) Stop() {
 	if s.listener != nil {
+		fmt.Println("before listener close")
 		s.listener.Close()
-		s.sessMgr.Dispose()
-		s.dispatcher.Dispose()
+		fmt.Println("after listener closed")
+		if s.sessMgr != nil {
+			fmt.Println("before session manager closed")
+			s.sessMgr.Dispose()
+			fmt.Println("after session manager closed")
+		}
+		if s.dispatcher != nil {
+			fmt.Println("before dispatcher closed")
+			s.dispatcher.Dispose()
+			fmt.Println("after dispatcher closed")
+		}
 	}
 
 }

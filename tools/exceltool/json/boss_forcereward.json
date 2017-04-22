@@ -1,0 +1,7 @@
+{"Boss_forcereward":
+[
+	{"id":1, "reward":[[6,6,6000]], "green_box":100, "blue_box":60, "violet_box":25, "orange_reward":12},
+	{"id":2, "reward":[[6,6,4500]], "green_box":90, "blue_box":55, "violet_box":20, "orange_reward":10},
+	{"id":3, "reward":[[6,6,3000]], "green_box":80, "blue_box":50, "violet_box":15, "orange_reward":8}
+]
+}

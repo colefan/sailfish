@@ -1,0 +1,23 @@
+{"Boss_killnum":
+[
+	{"id":1, "lossblood_min":0, "lossblood_max":199, "round_min":1, "round_max":2, "kill_num":16},
+	{"id":2, "lossblood_min":0, "lossblood_max":199, "round_min":3, "round_max":4, "kill_num":15},
+	{"id":3, "lossblood_min":0, "lossblood_max":199, "round_min":5, "round_max":30, "kill_num":14},
+	{"id":4, "lossblood_min":200, "lossblood_max":499, "round_min":1, "round_max":2, "kill_num":14},
+	{"id":5, "lossblood_min":200, "lossblood_max":499, "round_min":3, "round_max":30, "kill_num":13},
+	{"id":6, "lossblood_min":500, "lossblood_max":999, "round_min":1, "round_max":30, "kill_num":12},
+	{"id":7, "lossblood_min":1000, "lossblood_max":1499, "round_min":1, "round_max":30, "kill_num":11},
+	{"id":8, "lossblood_min":1500, "lossblood_max":1999, "round_min":1, "round_max":30, "kill_num":10},
+	{"id":9, "lossblood_min":2000, "lossblood_max":2499, "round_min":1, "round_max":30, "kill_num":9},
+	{"id":10, "lossblood_min":2500, "lossblood_max":2999, "round_min":1, "round_max":30, "kill_num":8},
+	{"id":11, "lossblood_min":3000, "lossblood_max":3999, "round_min":1, "round_max":30, "kill_num":7},
+	{"id":12, "lossblood_min":4000, "lossblood_max":4999, "round_min":1, "round_max":30, "kill_num":6},
+	{"id":13, "lossblood_min":5000, "lossblood_max":5999, "round_min":1, "round_max":30, "kill_num":5},
+	{"id":14, "lossblood_min":6000, "lossblood_max":6999, "round_min":1, "round_max":30, "kill_num":4},
+	{"id":15, "lossblood_min":7000, "lossblood_max":8499, "round_min":1, "round_max":30, "kill_num":3},
+	{"id":16, "lossblood_min":8500, "lossblood_max":9999, "round_min":1, "round_max":30, "kill_num":2},
+	{"id":17, "lossblood_min":10000, "lossblood_max":10000, "round_min":5, "round_max":30, "kill_num":2},
+	{"id":18, "lossblood_min":10000, "lossblood_max":10000, "round_min":2, "round_max":4, "kill_num":1},
+	{"id":19, "lossblood_min":10000, "lossblood_max":10000, "round_min":1, "round_max":1, "kill_num":0}
+]
+}

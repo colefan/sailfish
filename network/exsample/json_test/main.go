@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/console"
 	"github.com/colefan/sailfish/network"
 	"github.com/colefan/sailfish/network/codec"
 )
@@ -19,103 +21,104 @@ type AddResp struct {
 }
 
 func main() {
+	log := logg.NewLogger(100)
+	log.EnableFuncCallDepath(true)
+	log.SetAppender("console", "")
 	p := codec.NewJSONProtocol()
 	p.Register(AddReq{})
 	p.Register(AddResp{})
-	server, err := network.NewServer("tcp", "0.0.0.0:7777", p, 100)
+	server := network.NewServer("tcp", "0.0.0.0:7777", p, 100, 0, network.NewPackDispatcher())
+	server.SetLogger(log)
+	server.SetQos(true)
+	server.SetLogicLoopFunc(serverHandler)
+	err := server.Init()
 	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
-	go func() {
-		err1 := server.Serve(network.HandlerFunc(serverLoop))
-		fmt.Printf("server loop finiished %v\n", err1)
-	}()
-
-	//server.Listener(
-	client, err2 := network.NewClientConnect("tcp", "0.0.0.0:7777", p, 100)
-	if err2 != nil {
-		fmt.Printf("client loop finished %v\n", err2)
-		server.Stop()
+	err = server.Run()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
 	}
-	clientLoop(client)
+
+	client := network.NewClient("tcp", "0.0.0.0:7777", p, 100, 0)
+	client.SetLogger(log)
+	client.SetDispatcher(network.NewPackDispatcher())
+	client.SetLogicLoopCall(clientLogic)
+	err = client.Init()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	err = client.Run()
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	go clientReq(client)
+	fmt.Println("okle")
+	console.Deamon()
 
 }
 
-func serverLoop(session *network.Session, ctx network.Context, err error) {
-	if session == nil {
-		fmt.Printf("serverLoop session is nil\n")
-		return
-	}
-	for {
-		req, err2 := session.ReadMsg()
-		if req == nil {
-			fmt.Printf("serverLoop ReadMsg is nil\n")
-			continue
-		}
-		if err2 != nil {
-			fmt.Printf(err2.Error())
-			session.Close()
-			return
-		}
-		fmt.Printf("serverLoop readMsg is %v \n", req)
+func serverHandler(pack network.PackInf) {
+	if pack != nil {
+		req := pack.GetPackBody()
 		var resp AddResp
 		resp.Val = req.(*AddReq).Param1 + req.(*AddReq).Param2
-
-		err2 = session.SendMsg(&resp)
-		if err2 != nil {
-			fmt.Printf("serverLoop send resp error %v\n", err2.Error())
-			session.Close()
-			return
+		respPack := &network.BasePack{}
+		respPack.SetPackBody(&resp)
+		fmt.Println(pack.GetTCPSession())
+		err := pack.GetTCPSession().WriteMsg(respPack)
+		if err != nil {
+			fmt.Println(err)
 		}
+
 	}
 
 }
 
-func clientLoop(session *network.Session) {
-	fmt.Println("Begin to start to send msg to Server")
-	var clientCount int
-	clientCount = 0
-	go func() {
-		for {
-			var req AddReq
-			req.Param1 = rand.Intn(100)
-			req.Param2 = rand.Intn(100)
-			fmt.Printf("req send %v\n", req)
-
-			err := session.SendMsg(&req)
-
-			if err != nil {
-				fmt.Println(err.Error())
-				session.Close()
-				return
-			}
-			req.Param1++
-			req.Param2++
-			fmt.Printf("req send %v\n", req)
-
-			err = session.SendMsg(&req)
-			if err != nil {
-				session.Close()
-				return
-			}
-
-			time.Sleep(time.Microsecond * 500)
-		}
-
-	}()
-
+func clientReq(client *network.Client) {
 	for {
-		resp, err := session.ReadMsg()
+		var req AddReq
+		req.Param1 = rand.Intn(100)
+		req.Param2 = rand.Intn(100)
+		fmt.Printf("req send %v\n", req)
+		pack := &network.BasePack{}
+		pack.SetPackBody(&req)
+
+		err := client.WriteMsg(pack)
+
 		if err != nil {
-			fmt.Println("client loop ReadMsg error " + err.Error())
-			session.Close()
+			fmt.Println(err.Error())
 			return
 		}
+		req.Param1++
+		req.Param2++
+		fmt.Printf("req send %v\n", req)
+
+		pack = &network.BasePack{}
+		pack.SetPackBody(&req)
+		err = client.WriteMsg(pack)
+		if err != nil {
+			return
+		}
+
+		time.Sleep(time.Microsecond * 500)
+	}
+
+}
+
+var clientCount int
+
+func clientLogic(pack network.PackInf) {
+	if pack != nil {
+		resp := pack.GetPackBody()
 		clientCount++
 		fmt.Printf("clientLoop resp %v\n", resp)
 		fmt.Printf("clientLoop loop = %d \n ", clientCount)
 		fmt.Printf("clientLoop read msg AddResp.Val = %d \n", (resp.(*AddResp).Val))
 
 	}
-
 }

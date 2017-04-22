@@ -32,6 +32,22 @@ type Gate struct {
 	conf             *config.IniConfig
 }
 
+//GetClientServerSessionMgr get session manager
+func (g *Gate) GetClientServerSessionMgr() *network.SessionMgr {
+	if g.clientServer != nil {
+		return g.clientServer.GetSessionMgr()
+	}
+	return nil
+}
+
+//GetRouteServerSessionMgr get route server manager
+func (g *Gate) GetRouteServerSessionMgr() *network.SessionMgr {
+	if g.routeServer != nil {
+		return g.routeServer.GetSessionMgr()
+	}
+	return nil
+}
+
 //RegisterClientHandler register client handler
 func (g *Gate) RegisterClientHandler(handler SessionHandler) {
 	g.clientHandler = handler
@@ -94,8 +110,8 @@ func (g *Gate) Init() error {
 	}
 	g.logger.Info("gate config parsing success.")
 
-	g.clientHandler = new(ClientHandler)
-	g.serverHandler = new(ServerHandler)
+	//g.clientHandler = new(ClientHandler)
+	//g.serverHandler = new(ServerHandler)
 	//设置路由规则
 	g.route = new(BaseRoute)
 	//TODO
@@ -124,13 +140,13 @@ func (g *Gate) Run() {
 	}
 	var err error
 	gLog.Info(g.conf.String("serverListner"))
-	g.routeServer, err = network.NewTCPServer("tcp", g.conf.String("serverListner"), g.serverProtocol, 200)
+	g.routeServer, err = network.NewTCPServer("tcp", g.conf.String("serverListner"), g.serverProtocol, 200, 1, nil)
 	if err != nil {
 		g.logger.Error("serverListner create error " + err.Error())
 		return
 	}
 
-	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 100)
+	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 100, 1, nil)
 	if err != nil {
 		g.logger.Error("clientListener create error " + err.Error())
 		return
@@ -148,53 +164,57 @@ func (g *Gate) Daemon() {
 	s := <-signalChan
 	fmt.Print(s)
 	g.ShutDown()
+	fmt.Println("exit")
 	//	select {}
 }
 
 //ShutDown shutdown gate server
 func (g *Gate) ShutDown() {
+	fmt.Println("shutdown route server")
 	if g.routeServer != nil {
 		g.routeServer.Stop()
 	}
+	fmt.Println("shutdown client server ")
 
 	if g.clientServer != nil {
 		g.clientServer.Stop()
 	}
-
+	fmt.Println("finish")
 }
 
 func (g *Gate) routeServerLoop(session *network.TCPSession) {
-	if session.Status() == statusInit {
-		//尚未注册
-		g.serverHandler.SessionOpen(session)
-		return
-	}
-
 	for {
-		msg, err := session.ReadMsg()
-		if err != nil {
-			session.Close()
-			g.serverHandler.SessionClose(session)
-			return
+		if session.Status() == ServerInit {
+			g.serverHandler.SessionOpen(session)
+			session.SetStatus(ServerConnected)
+		} else {
+			msg, err := session.ReadMsg()
+			if err != nil {
+				session.Close()
+				//g.serverHandler.SessionClose(session)
+				return
+			}
+			g.serverHandler.HandleMessage(msg, session)
 		}
-		g.serverHandler.HandleMessage(msg, session)
 	}
 
 }
 
 func (g *Gate) clientServerLoop(session *network.TCPSession) {
-	if session.Status() == statusInit {
-		g.clientHandler.SessionOpen(session)
-		return
+	for {
+		if session.Status() == StatusInit {
+			g.clientHandler.SessionOpen(session)
+			session.SetStatus(StatusConnected)
+		} else {
+			msg, err := session.ReadMsg()
+			if err != nil {
+				session.Close()
+				//g.clientHandler.SessionClose(session)
+				return
+			}
+			g.clientHandler.HandleMessage(msg, session)
+
+		}
 	}
 
-	for {
-		msg, err := session.ReadMsg()
-		if err != nil {
-			session.Close()
-			g.clientHandler.SessionClose(session)
-			return
-		}
-		g.clientHandler.HandleMessage(msg, session)
-	}
 }

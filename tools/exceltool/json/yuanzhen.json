@@ -1,0 +1,20 @@
+{"Yuanzhen":
+[
+	{"id":1001, "pre_id":0, "base_reward":[[2,2,5000],[10,10,1],[205,501001,1]], "battlemap":999100, "has_shop":0, "Handicap":3000},
+	{"id":1002, "pre_id":1001, "base_reward":[[11,11,100],[10,10,2],[205,501001,1]], "battlemap":999101, "has_shop":0, "Handicap":3000},
+	{"id":1003, "pre_id":1002, "base_reward":[[2,2,6000],[10,10,3],[205,501001,1]], "battlemap":999102, "has_shop":0, "Handicap":3500},
+	{"id":1004, "pre_id":1003, "base_reward":[[2,2,7000],[10,10,4],[205,501001,1]], "battlemap":999103, "has_shop":1, "Handicap":3500},
+	{"id":1005, "pre_id":1004, "base_reward":[[11,11,200],[10,10,2],[205,501001,1]], "battlemap":999104, "has_shop":0, "Handicap":4000},
+	{"id":1006, "pre_id":1005, "base_reward":[[2,2,8000],[10,10,3],[205,501001,1]], "battlemap":999105, "has_shop":0, "Handicap":4000},
+	{"id":1007, "pre_id":1006, "base_reward":[[2,2,9000],[10,10,4],[205,501001,1]], "battlemap":999106, "has_shop":0, "Handicap":4500},
+	{"id":1008, "pre_id":1007, "base_reward":[[11,11,200],[10,10,5],[205,501001,1]], "battlemap":999107, "has_shop":1, "Handicap":4500},
+	{"id":1009, "pre_id":1008, "base_reward":[[2,2,10000],[10,10,2],[205,501001,1]], "battlemap":999108, "has_shop":0, "Handicap":5500},
+	{"id":1010, "pre_id":1009, "base_reward":[[2,2,11000],[10,10,3],[205,501001,1]], "battlemap":999109, "has_shop":0, "Handicap":5500},
+	{"id":1011, "pre_id":1010, "base_reward":[[11,11,250],[10,10,4],[205,501001,1]], "battlemap":999110, "has_shop":1, "Handicap":6500},
+	{"id":1012, "pre_id":1011, "base_reward":[[2,2,12000],[10,10,5],[205,501001,1]], "battlemap":999111, "has_shop":0, "Handicap":6500},
+	{"id":1013, "pre_id":1012, "base_reward":[[2,2,13000],[10,10,3],[205,501001,1]], "battlemap":999112, "has_shop":0, "Handicap":7000},
+	{"id":1014, "pre_id":1013, "base_reward":[[11,11,250],[10,10,4],[205,501001,1]], "battlemap":999113, "has_shop":1, "Handicap":7000},
+	{"id":1015, "pre_id":1014, "base_reward":[[2,2,14000],[10,10,5],[205,501001,1]], "battlemap":999114, "has_shop":0, "Handicap":8000},
+	{"id":1016, "pre_id":1015, "base_reward":[[11,11,300],[10,10,6],[205,501001,1]], "battlemap":999115, "has_shop":0, "Handicap":8500}
+]
+}

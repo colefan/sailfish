@@ -1,0 +1,10 @@
+{"Huodong_tuijian":
+[
+	{"ID":1, "charactor_id":10009, "type":1, "rewards":[[201,310009,5]], "buy_limit":4, "prize":250},
+	{"ID":2, "charactor_id":10003, "type":2, "rewards":[[201,310003,5]], "buy_limit":4, "prize":250},
+	{"ID":3, "charactor_id":10039, "type":2, "rewards":[[201,310039,5]], "buy_limit":4, "prize":250},
+	{"ID":4, "charactor_id":10016, "type":3, "rewards":[[201,310016,5]], "buy_limit":4, "prize":250},
+	{"ID":5, "charactor_id":10037, "type":3, "rewards":[[201,310037,5]], "buy_limit":4, "prize":250},
+	{"ID":6, "charactor_id":10018, "type":3, "rewards":[[201,310018,5]], "buy_limit":4, "prize":250}
+]
+}

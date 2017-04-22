@@ -1,0 +1,23 @@
+{"Tujianchengjiu":
+[
+	{"id":1000, "front_id":0, "achievement_value":0, "consume":[], "target":1, "attribute":[[10004,0],[10005,0],[10006,0]]},
+	{"id":1001, "front_id":0, "achievement_value":50, "consume":[[2,2,20000]], "target":1, "attribute":[[10004,80],[10005,0],[10006,0]]},
+	{"id":1002, "front_id":1001, "achievement_value":120, "consume":[[2,2,50000]], "target":1, "attribute":[[10004,80],[10005,80],[10006,0]]},
+	{"id":1003, "front_id":1002, "achievement_value":200, "consume":[[2,2,80000]], "target":1, "attribute":[[10004,80],[10005,80],[10006,80]]},
+	{"id":1004, "front_id":1003, "achievement_value":300, "consume":[[2,2,100000]], "target":1, "attribute":[[10004,180],[10005,80],[10006,80]]},
+	{"id":1005, "front_id":1004, "achievement_value":400, "consume":[[2,2,120000]], "target":1, "attribute":[[10004,180],[10005,180],[10006,80]]},
+	{"id":1006, "front_id":1005, "achievement_value":500, "consume":[[2,2,140000]], "target":1, "attribute":[[10004,180],[10005,180],[10006,180]]},
+	{"id":1007, "front_id":1006, "achievement_value":600, "consume":[[2,2,160000]], "target":1, "attribute":[[10004,280],[10005,180],[10006,180]]},
+	{"id":1008, "front_id":1007, "achievement_value":750, "consume":[[2,2,180000]], "target":1, "attribute":[[10004,280],[10005,280],[10006,180]]},
+	{"id":1009, "front_id":1008, "achievement_value":900, "consume":[[2,2,200000]], "target":1, "attribute":[[10004,280],[10005,280],[10006,280]]},
+	{"id":1010, "front_id":1009, "achievement_value":1000, "consume":[[2,2,250000]], "target":1, "attribute":[[10004,430],[10005,280],[10006,280]]},
+	{"id":1011, "front_id":1010, "achievement_value":1100, "consume":[[2,2,250000]], "target":1, "attribute":[[10004,430],[10005,430],[10006,280]]},
+	{"id":1012, "front_id":1011, "achievement_value":1200, "consume":[[2,2,250000]], "target":1, "attribute":[[10004,430],[10005,430],[10006,430]]},
+	{"id":1013, "front_id":1012, "achievement_value":1300, "consume":[[2,2,400000]], "target":1, "attribute":[[10004,630],[10005,430],[10006,430]]},
+	{"id":1014, "front_id":1013, "achievement_value":1400, "consume":[[2,2,400000]], "target":1, "attribute":[[10004,630],[10005,630],[10006,430]]},
+	{"id":1015, "front_id":1014, "achievement_value":1500, "consume":[[2,2,400000]], "target":1, "attribute":[[10004,630],[10005,630],[10006,630]]},
+	{"id":1016, "front_id":1015, "achievement_value":1650, "consume":[[2,2,600000]], "target":1, "attribute":[[10004,830],[10005,630],[10006,630]]},
+	{"id":1017, "front_id":1016, "achievement_value":1800, "consume":[[2,2,600000]], "target":1, "attribute":[[10004,830],[10005,830],[10006,630]]},
+	{"id":1018, "front_id":1017, "achievement_value":2000, "consume":[[2,2,600000]], "target":1, "attribute":[[10004,830],[10005,830],[10006,830]]}
+]
+}

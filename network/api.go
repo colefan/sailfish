@@ -1,7 +1,6 @@
 package network
 
 import "net"
-import "time"
 
 //PackInf interface of pack
 type PackInf interface {
@@ -35,16 +34,17 @@ type Protocol interface {
 }
 
 //NewTCPServer create a server with params
-func NewTCPServer(network, address string, protocol Protocol, sendChanSize int) (*TCPServer, error) {
+func NewTCPServer(network, address string, protocol Protocol, sendChanSize int, mode int, dispatcher PackDispatcherInf) (*TCPServer, error) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		return nil, err
 	}
-	return newTCPServer(listener, protocol, sendChanSize), nil
+	return newTCPServer(listener, protocol, sendChanSize, mode, dispatcher), nil
 }
 
 //NewTCPClient create a client session
-func NewTCPClient(network, address string, protocol Protocol, sendChanSize int) (*TCPClient, error) {
+func NewTCPClient(network, address string, protocol Protocol, sendChanSize int,
+	mode int, dispatcher PackDispatcherInf) (*TCPClient, error) {
 	conn, err := net.Dial(network, address)
 	if err != nil {
 		return nil, err
@@ -54,19 +54,19 @@ func NewTCPClient(network, address string, protocol Protocol, sendChanSize int) 
 		conn.Close()
 		return nil, err
 	}
-	return newTCPClient(conn, codec, sendChanSize), nil
+	return newTCPClient(conn, codec, sendChanSize, mode, dispatcher), nil
 }
 
 //NewClientConntectTimeout create a client session with timeout
-func NewTCPClientTimeout(network, address string, timeout time.Duration, protocol Protocol, sendChanSize int) (*TCPClient, error) {
-	conn, err := net.DialTimeout(network, address, timeout)
-	if err != nil {
-		return nil, err
-	}
-	codec, err := protocol.NewCodec(conn)
-	if err != nil {
-		conn.Close()
-		return nil, err
-	}
-	return newTCPClient(conn, codec, sendChanSize), nil
-}
+// func NewTCPClientTimeout(network, address string, timeout time.Duration, protocol Protocol, sendChanSize int) (*TCPClient, error) {
+// 	conn, err := net.DialTimeout(network, address, timeout)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	codec, err := protocol.NewCodec(conn)
+// 	if err != nil {
+// 		conn.Close()
+// 		return nil, err
+// 	}
+// 	return newTCPClient(conn, codec, sendChanSize), nil
+// }

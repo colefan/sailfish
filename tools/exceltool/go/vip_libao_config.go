@@ -1,0 +1,150 @@
+package config
+type Vip_libao struct{
+	Items []*Vip_libao_Item
+}
+
+type Vip_libao_Item struct{
+	Id int
+	Need_viplv int
+	Price int
+	Old_price int
+	Reward [][]int
+}
+
+var InstVip_libao *Vip_libao
+
+func init(){
+	item := &Vip_libao_Item{}
+	item.Id = 1000
+	item.Need_viplv = 0
+	item.Price = 88
+	item.Old_price = 488
+	item.Reward = [][]int{{201,432003,5},{2,2,30000},{201,431001,5},{201,405002,5}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1001
+	item.Need_viplv = 1
+	item.Price = 188
+	item.Old_price = 758
+	item.Reward = [][]int{{201,310049,20},{3,3,30000},{201,432004,5},{201,435001,10}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1002
+	item.Need_viplv = 2
+	item.Price = 388
+	item.Old_price = 1558
+	item.Reward = [][]int{{201,310042,30},{2,2,50000},{201,431002,20},{201,405002,10},{201,110101,400},{201,110107,400},{201,110104,400},{201,110110,400}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1003
+	item.Need_viplv = 3
+	item.Price = 588
+	item.Old_price = 2358
+	item.Reward = [][]int{{201,310039,40},{3,3,50000},{16,16,10},{201,406003,10}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1004
+	item.Need_viplv = 4
+	item.Price = 688
+	item.Old_price = 2758
+	item.Reward = [][]int{{201,432003,40},{2,2,100000},{201,435001,30},{201,432004,10}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1005
+	item.Need_viplv = 5
+	item.Price = 988
+	item.Old_price = 3958
+	item.Reward = [][]int{{201,310005,40},{3,3,100000},{201,406003,15},{16,16,15}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1006
+	item.Need_viplv = 6
+	item.Price = 1688
+	item.Old_price = 6758
+	item.Reward = [][]int{{201,310045,100},{2,2,300000},{201,405002,30},{201,435001,60}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1007
+	item.Need_viplv = 7
+	item.Price = 1988
+	item.Old_price = 7958
+	item.Reward = [][]int{{201,310029,100},{2,2,500000},{201,432004,30},{201,405003,10}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1008
+	item.Need_viplv = 8
+	item.Price = 2288
+	item.Old_price = 9158
+	item.Reward = [][]int{{201,310012,100},{3,3,500000},{16,16,50},{201,435001,100}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1009
+	item.Need_viplv = 9
+	item.Price = 2588
+	item.Old_price = 10358
+	item.Reward = [][]int{{201,432003,80},{2,2,500000},{201,431001,30},{201,405003,20}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1010
+	item.Need_viplv = 10
+	item.Price = 3288
+	item.Old_price = 13158
+	item.Reward = [][]int{{201,310003,100},{3,3,500000},{201,435001,150},{4,4,200000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1011
+	item.Need_viplv = 11
+	item.Price = 3888
+	item.Old_price = 15558
+	item.Reward = [][]int{{201,310018,120},{2,2,500000},{4,4,300000},{201,405004,10}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1012
+	item.Need_viplv = 12
+	item.Price = 4588
+	item.Old_price = 18358
+	item.Reward = [][]int{{201,310037,120},{3,3,750000},{16,16,50},{4,4,400000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1013
+	item.Need_viplv = 13
+	item.Price = 4888
+	item.Old_price = 19558
+	item.Reward = [][]int{{201,432003,120},{2,2,1000000},{201,431002,100},{4,4,500000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1014
+	item.Need_viplv = 14
+	item.Price = 5888
+	item.Old_price = 23558
+	item.Reward = [][]int{{201,310027,150},{2,2,2000000},{4,4,750000},{3,3,1000000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1015
+	item.Need_viplv = 15
+	item.Price = 6888
+	item.Old_price = 27558
+	item.Reward = [][]int{{201,310039,150},{2,2,3000000},{201,432004,60},{4,4,750000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1016
+	item.Need_viplv = 16
+	item.Price = 7888
+	item.Old_price = 31558
+	item.Reward = [][]int{{201,310029,150},{4,4,1000000},{201,405004,50},{3,3,2000000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1017
+	item.Need_viplv = 17
+	item.Price = 8888
+	item.Old_price = 35558
+	item.Reward = [][]int{{201,310005,150},{2,2,5000000},{201,405004,50},{4,4,1000000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+	item = &Vip_libao_Item{}
+	item.Id = 1018
+	item.Need_viplv = 18
+	item.Price = 9888
+	item.Old_price = 39558
+	item.Reward = [][]int{{201,310012,150},{201,406009,60},{2,2,8000000},{4,4,1000000}}
+	InstVip_libao.Items = append(InstVip_libao.Items,item)
+}

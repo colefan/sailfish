@@ -1,0 +1,24 @@
+{"Legion_upgrade":
+[
+	{"legion_level":1, "member_max":25, "upgrade_pay":10000, "spot_max":25, "legion_technology_max":2},
+	{"legion_level":2, "member_max":26, "upgrade_pay":400000, "spot_max":30, "legion_technology_max":4},
+	{"legion_level":3, "member_max":26, "upgrade_pay":500000, "spot_max":35, "legion_technology_max":6},
+	{"legion_level":4, "member_max":27, "upgrade_pay":900000, "spot_max":40, "legion_technology_max":8},
+	{"legion_level":5, "member_max":27, "upgrade_pay":1300000, "spot_max":45, "legion_technology_max":10},
+	{"legion_level":6, "member_max":28, "upgrade_pay":1700000, "spot_max":50, "legion_technology_max":12},
+	{"legion_level":7, "member_max":28, "upgrade_pay":2100000, "spot_max":55, "legion_technology_max":14},
+	{"legion_level":8, "member_max":29, "upgrade_pay":2800000, "spot_max":60, "legion_technology_max":16},
+	{"legion_level":9, "member_max":29, "upgrade_pay":3500000, "spot_max":63, "legion_technology_max":18},
+	{"legion_level":10, "member_max":30, "upgrade_pay":4200000, "spot_max":66, "legion_technology_max":20},
+	{"legion_level":11, "member_max":30, "upgrade_pay":4900000, "spot_max":69, "legion_technology_max":22},
+	{"legion_level":12, "member_max":31, "upgrade_pay":5600000, "spot_max":72, "legion_technology_max":24},
+	{"legion_level":13, "member_max":31, "upgrade_pay":6300000, "spot_max":75, "legion_technology_max":26},
+	{"legion_level":14, "member_max":32, "upgrade_pay":7000000, "spot_max":78, "legion_technology_max":28},
+	{"legion_level":15, "member_max":32, "upgrade_pay":8800000, "spot_max":81, "legion_technology_max":30},
+	{"legion_level":16, "member_max":33, "upgrade_pay":9900000, "spot_max":84, "legion_technology_max":32},
+	{"legion_level":17, "member_max":33, "upgrade_pay":10800000, "spot_max":87, "legion_technology_max":34},
+	{"legion_level":18, "member_max":34, "upgrade_pay":16800000, "spot_max":90, "legion_technology_max":36},
+	{"legion_level":19, "member_max":34, "upgrade_pay":24000000, "spot_max":93, "legion_technology_max":38},
+	{"legion_level":20, "member_max":35, "upgrade_pay":0, "spot_max":96, "legion_technology_max":40}
+]
+}

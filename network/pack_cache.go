@@ -69,6 +69,18 @@ func (q *PackQueue) PopList(size int) []*PackCache {
 
 }
 
+//PopAll pop all items
+func (q *PackQueue) PopAll() []*PackCache {
+	q.Lock()
+	defer q.Unlock()
+	if len(q.items) == 0 {
+		return nil
+	}
+	items := q.items[0:]
+	q.items = q.items[len(q.items):]
+	return items
+}
+
 //Dispose dispose queue
 func (q *PackQueue) Dispose() {
 	q.Lock()
