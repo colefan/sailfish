@@ -1,8 +1,0 @@
-{"Guozhan_task":
-[
-	{"type":1, "chance":100, "exp":1250},
-	{"type":2, "chance":0, "exp":500},
-	{"type":3, "chance":0, "exp":500},
-	{"type":4, "chance":0, "exp":500}
-]
-}

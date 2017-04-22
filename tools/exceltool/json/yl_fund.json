@@ -1,5 +1,0 @@
-{"Yl_fund":
-[
-	{"id":1001, "need_viplv":2, "fund_price":1000, "need_level1":20, "level1_reward":[[1,1,300]], "need_level2":30, "level2_reward":[[1,1,500]], "need_level3":40, "level3_reward":[[1,1,800]], "need_level4":50, "level4_reward":[[1,1,1000]], "need_level5":60, "level5_reward":[[1,1,1300]], "need_level6":65, "level6_reward":[[1,1,1600]], "need_level7":70, "level7_reward":[[1,1,2000]], "need_level8":75, "level8_reward":[[1,1,2500]]}
-]
-}

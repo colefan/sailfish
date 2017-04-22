@@ -1,9 +1,0 @@
-{"Box_gongxian":
-[
-	{"id":101, "box_num":2, "need_gongxian":75},
-	{"id":201, "box_num":3, "need_gongxian":300},
-	{"id":301, "box_num":3, "need_gongxian":600},
-	{"id":401, "box_num":3, "need_gongxian":900},
-	{"id":501, "box_num":5, "need_gongxian":1300}
-]
-}
