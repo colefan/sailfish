@@ -21,7 +21,7 @@ type TCPSession struct {
 	sync.Mutex
 	id             uint64
 	conn           net.Conn
-	lastActiveTime time.Time
+	lastActiveTime int64
 	codec          Codec //编解码器
 	closeFlag      int32
 	closeCallback  SessionCloseCallBack
@@ -119,6 +119,7 @@ func (session *TCPSession) WriteMsg(msg PackInf) error {
 	}
 	select {
 	case session.sendChan <- msg:
+		session.lastActiveTime = time.Now().Unix()
 		return nil
 	default:
 		return ErrorSessionWriteBlocked
@@ -131,6 +132,7 @@ func (session *TCPSession) ReadMsg() (PackInf, error) {
 	pack, err := session.codec.ReceiveMsg()
 	if pack != nil {
 		pack.SetTCPSession(session)
+		session.lastActiveTime = time.Now().Unix()
 		if !session.withHandler {
 			session.dispatcher.PostData(pack, session)
 		}
@@ -199,6 +201,7 @@ func (session *TCPSession) readMsgLoop() {
 			GetTCPServerQos().AddReadPacket(msg.GetPackLen())
 			msg.SetTCPSession(session)
 			session.dispatcher.PostData(msg, session)
+			session.lastActiveTime = time.Now().Unix()
 		}
 	}
 }
@@ -206,6 +209,16 @@ func (session *TCPSession) readMsgLoop() {
 //SetCloseCallback setter
 func (session *TCPSession) SetCloseCallback(f SessionCloseCallBack) {
 	session.closeCallback = f
+}
+
+//GetLastActiveTime lastactive time
+func (session *TCPSession) GetLastActiveTime() int64 {
+	return session.lastActiveTime
+}
+
+//SetLastActiveTime set lastactive time
+func (session *TCPSession) SetLastActiveTime(t int64) {
+	session.lastActiveTime = t
 }
 
 //SessionCloseCallBack close callback func
