@@ -7,6 +7,7 @@ type PackDispatcherInf interface {
 	FetchDataList(size int) []*PackCache
 	FetchAllData() []*PackCache
 	Dispose()
+	IsChannelDispatcher() bool
 }
 
 //PackDispatcher cls
@@ -17,6 +18,10 @@ type PackDispatcher struct {
 //NewPackDispatcher new
 func NewPackDispatcher() *PackDispatcher {
 	return &PackDispatcher{queue: NewPackQueue(4096)}
+}
+
+func (c *PackDispatcher) IsChannelDispatcher() bool {
+	return false
 }
 
 //PostData post data to queue

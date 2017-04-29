@@ -3,6 +3,8 @@ package network
 import (
 	"errors"
 
+	"time"
+
 	"github.com/colefan/logg"
 )
 
@@ -125,15 +127,35 @@ func (s *Server) Run() error {
 }
 
 func (s *Server) eventLoop() {
-	for {
-		packList := s.GetPackDispatcher().FetchAllData()
-		if packList != nil {
-			for _, v := range packList {
-				if v != nil {
-					s.logicLoopFunc(v.Pack)
-				}
+	isChannel := s.GetPackDispatcher().IsChannelDispatcher()
+	if isChannel {
+		for {
+			item := s.GetPackDispatcher().FetchData()
+			if item != nil {
+				s.logicLoopFunc(item.Pack)
 			}
 		}
+
+	} else {
+		emptyCount := 0
+		for {
+			packList := s.GetPackDispatcher().FetchAllData()
+			if packList != nil {
+				emptyCount = 0
+				for _, v := range packList {
+					if v != nil {
+						s.logicLoopFunc(v.Pack)
+					}
+				}
+			} else {
+				emptyCount++
+			}
+
+			if emptyCount >= 100 {
+				time.Sleep(10 * time.Microsecond)
+			}
+		}
+
 	}
 
 }

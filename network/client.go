@@ -190,22 +190,47 @@ func (c *Client) loop() {
 }
 
 func (c *Client) loopEvent() {
-	for {
-		packList := c.GetPackDispatcher().FetchAllData()
-		if packList != nil {
-			for _, v := range packList {
-				if v != nil {
-					c.logicLoop(v.Pack)
-				}
+	isChannel := c.GetPackDispatcher().IsChannelDispatcher()
+	if isChannel {
+		for {
+			item := c.GetPackDispatcher().FetchData()
+			if item != nil {
+				c.logicLoop(item.Pack)
 			}
+			select {
+			case <-c.closeChannel:
+				return
+			default:
+			}
+
 		}
 
-		select {
-		case <-c.closeChannel:
-			return
-		default:
-		}
+	} else {
+		for {
+			emptyCount := 0
+			packList := c.GetPackDispatcher().FetchAllData()
+			if packList != nil {
+				emptyCount = 0
+				for _, v := range packList {
+					if v != nil {
+						c.logicLoop(v.Pack)
+					}
+				}
+			} else {
+				emptyCount++
+			}
 
+			select {
+			case <-c.closeChannel:
+				return
+			default:
+			}
+
+			if emptyCount >= 100 {
+				time.Sleep(10 * time.Microsecond)
+			}
+
+		}
 	}
 
 }
