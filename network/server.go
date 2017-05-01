@@ -32,6 +32,7 @@ func NewServer(network string, address string, p Protocol, sendBufferSize int, m
 		mode:            mode,
 		dispatcher:      dispatcher,
 	}
+	s.TCPServer, _ = NewTCPServer(network, address, p, sendBufferSize, mode, dispatcher)
 	return s
 }
 
@@ -109,7 +110,7 @@ func (s *Server) Init() error {
 //Run run
 func (s *Server) Run() error {
 	var err error
-	s.TCPServer, err = NewTCPServer(s.networkType, s.address, s.protocol, s.sendChannelSize, s.mode, s.dispatcher)
+	//s.TCPServer, err = NewTCPServer(s.networkType, s.address, s.protocol, s.sendChannelSize, s.mode, s.dispatcher)
 	if err != nil {
 		return err
 	}
