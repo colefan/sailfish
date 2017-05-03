@@ -161,9 +161,17 @@ func (g *Gate) Run() {
 func (g *Gate) Daemon() {
 	signalChan := make(chan os.Signal)
 	signal.Notify(signalChan)
-	s := <-signalChan
-	fmt.Print(s)
-	g.ShutDown()
+	//closec := make(chan int)
+	for {
+		select {
+		case s := <-signalChan:
+			if s == os.Kill {
+				g.ShutDown()
+			}
+		}
+
+	}
+
 	fmt.Println("exit")
 	//	select {}
 }
