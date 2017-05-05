@@ -103,7 +103,7 @@ func (g *Gate) Init() error {
 	if g.conf == nil {
 		g.conf = config.NewIniConfig()
 	}
-	err := g.conf.Parse("./gate.ini")
+	err := g.conf.Parse("./config/gate.ini")
 	if err != nil {
 		g.logger.Error("parse ./gate.ini error " + err.Error())
 		return err
