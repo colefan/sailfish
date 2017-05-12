@@ -150,6 +150,9 @@ func (session *TCPSession) GetDispatcher() PackDispatcherInf {
 //Close close session
 func (session *TCPSession) Close() {
 	//TODO
+	if session.IsClosed() {
+		return
+	}
 	session.conn.Close()
 	atomic.StoreInt32(&session.closeFlag, 1)
 	if session.closeCallback != nil {
