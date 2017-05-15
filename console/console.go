@@ -11,6 +11,10 @@ func Deamon() {
 
 }
 
+func Parse() {
+
+}
+
 func init() {
 	CloseChan = make(chan string)
 }
