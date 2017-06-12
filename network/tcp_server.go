@@ -45,6 +45,7 @@ type TCPServer struct {
 	id                  uint64
 	serverID            string
 	mode                int
+	needCheckPerSecond  bool
 }
 
 func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispacher PackDispatcherInf) *TCPServer {
@@ -54,6 +55,7 @@ func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispac
 		sessionSendChanBuff: sendChanSize,
 		mode:                mode,
 		dispatcher:          dispacher,
+		needCheckPerSecond:  false,
 	}
 	if s.sessionSendChanBuff <= 0 {
 		s.sessionSendChanBuff = defaultSendChannelBufferSize
@@ -62,6 +64,10 @@ func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispac
 	s.sessMgr = newManager()
 	//s.dispatcher = newPackDispatcher()
 	return s
+}
+
+func (s *TCPServer) SetCheckPerSecond(b bool) {
+	s.needCheckPerSecond = b
 }
 
 //GetSessionMgr getter
@@ -121,6 +127,9 @@ func (s *TCPServer) Serve(handler HandleFunc) {
 			continue
 		}
 		session := newTCPSession(conn, codec, s.sessionSendChanBuff, s.dispatcher)
+		if s.needCheckPerSecond {
+			session.SetCheckPerSecond(true)
+		}
 		s.GetSessionMgr().AddSession(session)
 		if handler != nil {
 			session.Start(true)

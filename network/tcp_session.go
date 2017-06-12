@@ -19,26 +19,30 @@ var sTCPSessionID uint64
 //TCPSession cls
 type TCPSession struct {
 	sync.Mutex
-	id             uint64
-	conn           net.Conn
-	lastActiveTime int64
-	codec          Codec //编解码器
-	closeFlag      int32
-	closeCallback  SessionCloseCallBack
-	sendChan       chan PackInf
-	userData       interface{} //用户数据
-	dispatcher     PackDispatcherInf
-	status         int
-	withHandler    bool
+	id                 uint64
+	conn               net.Conn
+	lastActiveTime     int64
+	codec              Codec //编解码器
+	closeFlag          int32
+	closeCallback      SessionCloseCallBack
+	sendChan           chan PackInf
+	userData           interface{} //用户数据
+	dispatcher         PackDispatcherInf
+	status             int
+	withHandler        bool
+	needCheckPerSecond bool
+	perSecondCount     int
 }
 
 //newTCPSession private interface
 func newTCPSession(conn net.Conn, codec Codec, sendChanBuff int, dispather PackDispatcherInf) *TCPSession {
 	session := &TCPSession{
-		id:         atomic.AddUint64(&sTCPSessionID, 1),
-		conn:       conn,
-		codec:      codec,
-		dispatcher: dispather,
+		id:                 atomic.AddUint64(&sTCPSessionID, 1),
+		conn:               conn,
+		codec:              codec,
+		dispatcher:         dispather,
+		perSecondCount:     0,
+		needCheckPerSecond: false,
 	}
 	if sendChanBuff <= 0 {
 		sendChanBuff = 100
@@ -58,6 +62,10 @@ func (session *TCPSession) Start(bWithHandlerRoutine bool) {
 		session.withHandler = false
 		go session.readMsgLoop()
 	}
+}
+
+func (session *TCPSession) SetCheckPerSecond(b bool) {
+	session.needCheckPerSecond = b
 }
 
 //Status getter
@@ -126,11 +134,31 @@ func (session *TCPSession) WriteMsg(msg PackInf) error {
 	}
 }
 
+func (session *TCPSession) checkPerSecond() bool {
+	if session.needCheckPerSecond {
+		if time.Now().Unix() == session.lastActiveTime {
+			session.perSecondCount++
+		} else {
+			session.perSecondCount = 1
+		}
+
+		if session.perSecondCount > 100 {
+			return false
+		}
+
+	}
+
+	return true
+}
+
 //ReadMsg interface
 func (session *TCPSession) ReadMsg() (PackInf, error) {
 
 	pack, err := session.codec.ReceiveMsg()
 	if pack != nil {
+		if false == session.checkPerSecond() {
+			return nil, errors.New("too many request per second ")
+		}
 		pack.SetTCPSession(session)
 		session.lastActiveTime = time.Now().Unix()
 		if !session.withHandler {

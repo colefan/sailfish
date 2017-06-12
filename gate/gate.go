@@ -140,17 +140,19 @@ func (g *Gate) Run() {
 	}
 	var err error
 	gLog.Info(g.conf.String("serverListner"))
-	g.routeServer, err = network.NewTCPServer("tcp", g.conf.String("serverListner"), g.serverProtocol, 200, 1, nil)
+	g.routeServer, err = network.NewTCPServer("tcp", g.conf.String("serverListner"), g.serverProtocol, 10240, 1, nil)
 	if err != nil {
 		g.logger.Error("serverListner create error " + err.Error())
 		return
 	}
 
-	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 100, 1, nil)
+	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 1024, 1, nil)
+
 	if err != nil {
 		g.logger.Error("clientListener create error " + err.Error())
 		return
 	}
+	g.clientServer.SetCheckPerSecond(true)
 
 	go g.routeServer.Serve(g.routeServerLoop)
 	go g.clientServer.Serve(g.clientServerLoop)
@@ -211,6 +213,7 @@ func (g *Gate) routeServerLoop(session *network.TCPSession) {
 func (g *Gate) clientServerLoop(session *network.TCPSession) {
 	for {
 		if session.Status() == StatusInit {
+			session.SetCheckPerSecond(true)
 			g.clientHandler.SessionOpen(session)
 			session.SetStatus(StatusConnected)
 		} else {
