@@ -32,6 +32,7 @@ type TCPSession struct {
 	withHandler        bool
 	needCheckPerSecond bool
 	perSecondCount     int
+	closeChan          chan int
 }
 
 //newTCPSession private interface
@@ -43,6 +44,7 @@ func newTCPSession(conn net.Conn, codec Codec, sendChanBuff int, dispather PackD
 		dispatcher:         dispather,
 		perSecondCount:     0,
 		needCheckPerSecond: false,
+		closeChan:          make(chan int),
 	}
 	if sendChanBuff <= 0 {
 		sendChanBuff = 100
@@ -183,6 +185,8 @@ func (session *TCPSession) Close() {
 	}
 	session.conn.Close()
 	atomic.StoreInt32(&session.closeFlag, 1)
+	close(session.closeChan)
+	//close(session.sendChan)
 	if session.closeCallback != nil {
 		session.closeCallback(session)
 	}
@@ -190,7 +194,13 @@ func (session *TCPSession) Close() {
 
 //ForceClose 强迫关闭
 func (session *TCPSession) ForceClose() {
+	if session.IsClosed() {
+		return
+	}
 	session.conn.Close()
+	atomic.StoreInt32(&session.closeFlag, 1)
+	close(session.closeChan)
+
 }
 
 func (session *TCPSession) writeMsgLoop() {
@@ -211,7 +221,8 @@ func (session *TCPSession) writeMsgLoop() {
 				return
 			}
 			GetTCPServerQos().AddWritePacket(wLen)
-
+		case <-session.closeChan:
+			return
 		}
 
 	}

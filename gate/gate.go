@@ -146,7 +146,7 @@ func (g *Gate) Run() {
 		return
 	}
 
-	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 1024, 1, nil)
+	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 256, 1, nil)
 
 	if err != nil {
 		g.logger.Error("clientListener create error " + err.Error())
