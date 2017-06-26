@@ -180,26 +180,27 @@ func (session *TCPSession) GetDispatcher() PackDispatcherInf {
 //Close close session
 func (session *TCPSession) Close() {
 	//TODO
-	if session.IsClosed() {
-		return
+	if atomic.CompareAndSwapInt32(&session.closeFlag, 0, 1) {
+		session.conn.Close()
+		//	atomic.StoreInt32(&session.closeFlag, 1)
+		//fmt.Println("close id = %d", session.id)
+		close(session.closeChan)
+		//close(session.sendChan)
+		if session.closeCallback != nil {
+			session.closeCallback(session)
+		}
 	}
-	session.conn.Close()
-	atomic.StoreInt32(&session.closeFlag, 1)
-	close(session.closeChan)
-	//close(session.sendChan)
-	if session.closeCallback != nil {
-		session.closeCallback(session)
-	}
+
 }
 
 //ForceClose 强迫关闭
 func (session *TCPSession) ForceClose() {
-	if session.IsClosed() {
-		return
+	if atomic.CompareAndSwapInt32(&session.closeFlag, 0, 1) {
+		session.conn.Close()
+		//fmt.Println("force id = %d", session.id)
+		//atomic.StoreInt32(&session.closeFlag, 1)
+		close(session.closeChan)
 	}
-	session.conn.Close()
-	atomic.StoreInt32(&session.closeFlag, 1)
-	close(session.closeChan)
 
 }
 
