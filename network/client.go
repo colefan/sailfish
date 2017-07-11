@@ -2,8 +2,12 @@ package network
 
 import (
 	"errors"
+	"sync"
+	"sync/atomic"
 
 	"time"
+
+	"fmt"
 
 	"github.com/colefan/logg"
 )
@@ -23,12 +27,16 @@ type Client struct {
 	sendChannelBufferSize int
 	dispatcher            PackDispatcherInf
 	autoReconnect         bool
-	closeChannel          chan string
-	bReconnect            bool
+	//closeChannel          chan string
+	clientClosed int32
+	bReconnect   bool
 	*TCPClient
 	logicLoop             func(PackInf)
 	sessionOpenedCallback func(session *TCPSession)
 	sessionClosedCallback func(session *TCPSession)
+
+	disposeOnce   sync.Once
+	reconnectWait sync.WaitGroup
 }
 
 //NewClient new client
@@ -106,7 +114,8 @@ func (c *Client) WriteMsg(pack PackInf) error {
 
 //Init init
 func (c *Client) Init() error {
-	c.closeChannel = make(chan string)
+	c.clientClosed = 0
+	//c.closeChannel = make(chan string)
 	if c.log == nil {
 		return errors.New("log is nil")
 	}
@@ -131,7 +140,7 @@ func (c *Client) Init() error {
 //Run run
 func (c *Client) Run() error {
 	var err error
-	c.TCPClient, err = NewTCPClient(c.networkType, c.address, c.protocol, 100, c.mode, c.dispatcher)
+	c.TCPClient, err = NewTCPClient(c.networkType, c.address, c.protocol, c.sendChannelBufferSize, c.mode, c.dispatcher)
 	if err != nil {
 		return err
 	}
@@ -150,8 +159,24 @@ func (c *Client) closeCallback(session *TCPSession) {
 	if c.sessionClosedCallback != nil {
 		c.sessionClosedCallback(session)
 	}
+	//atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
+
 	if c.autoReconnect {
-		go c.Reconnect()
+		if c.mode == ModeEvent {
+			fmt.Println("swap")
+			atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
+			fmt.Println("add")
+			c.reconnectWait.Add(1)
+			closePack := new(BasePack)
+			closePack.SetPackID(99999)
+			closePack.SetPackType(11111)
+			c.dispatcher.PostData(closePack, nil)
+			fmt.Println("wait")
+			c.reconnectWait.Wait()
+			go c.Reconnect()
+		} else {
+			go c.Reconnect()
+		}
 	}
 
 }
@@ -165,11 +190,12 @@ func (c *Client) ShutDown() {
 func (c *Client) Reconnect() {
 	count := time.Duration(1)
 	for {
+		fmt.Printf("reconnected count = %d \n", count)
 		time.Sleep(time.Second * 5 * count)
 		err := c.Run()
 		if err == nil {
 			c.bReconnect = true
-			c.closeChannel <- "close"
+			//atomic.SwapInt32(&c.clientClosed, 0)
 			return
 		}
 		count++
@@ -193,14 +219,17 @@ func (c *Client) loopEvent() {
 	isChannel := c.GetPackDispatcher().IsChannelDispatcher()
 	if isChannel {
 		for {
+
 			item := c.GetPackDispatcher().FetchData()
+			if item.Pack.GetPackID() == 99999 && item.Pack.GetPackType() == 11111 {
+				if atomic.CompareAndSwapInt32(&c.clientClosed, 1, 0) {
+					c.reconnectWait.Done()
+					return
+				}
+
+			}
 			if item != nil {
 				c.logicLoop(item.Pack)
-			}
-			select {
-			case <-c.closeChannel:
-				return
-			default:
 			}
 
 		}
@@ -220,14 +249,13 @@ func (c *Client) loopEvent() {
 				emptyCount++
 			}
 
-			select {
-			case <-c.closeChannel:
-				return
-			default:
-			}
-
 			if emptyCount >= 100 {
 				time.Sleep(10 * time.Microsecond)
+			}
+
+			if atomic.CompareAndSwapInt32(&c.clientClosed, 1, 0) {
+				c.reconnectWait.Done()
+				return
 			}
 
 		}

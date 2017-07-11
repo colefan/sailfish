@@ -214,6 +214,7 @@ func (g *Gate) clientServerLoop(session *network.TCPSession) {
 	for {
 		if session.Status() == StatusInit {
 			session.SetCheckPerSecond(true)
+			session.SetTimeOut(180)
 			g.clientHandler.SessionOpen(session)
 			session.SetStatus(StatusConnected)
 		} else {
@@ -221,6 +222,7 @@ func (g *Gate) clientServerLoop(session *network.TCPSession) {
 			if err != nil {
 				session.Close()
 				//g.clientHandler.SessionClose(session)
+				//fmt.Println("test for session close error = %s", err.Error())
 				return
 			}
 			g.clientHandler.HandleMessage(msg, session)

@@ -33,6 +33,7 @@ type TCPSession struct {
 	needCheckPerSecond bool
 	perSecondCount     int
 	closeChan          chan int
+	timeout            int
 }
 
 //newTCPSession private interface
@@ -68,6 +69,10 @@ func (session *TCPSession) Start(bWithHandlerRoutine bool) {
 
 func (session *TCPSession) SetCheckPerSecond(b bool) {
 	session.needCheckPerSecond = b
+}
+
+func (session *TCPSession) SetTimeOut(t int) {
+	session.timeout = t
 }
 
 //Status getter
@@ -145,6 +150,7 @@ func (session *TCPSession) checkPerSecond() bool {
 		}
 
 		if session.perSecondCount > 100 {
+			fmt.Println("per Second lager than 100")
 			return false
 		}
 
@@ -155,7 +161,11 @@ func (session *TCPSession) checkPerSecond() bool {
 
 //ReadMsg interface
 func (session *TCPSession) ReadMsg() (PackInf, error) {
-
+	if session.timeout > 0 {
+		if session.conn != nil {
+			session.conn.SetDeadline(time.Now().Add(time.Duration(session.timeout) * time.Second))
+		}
+	}
 	pack, err := session.codec.ReceiveMsg()
 	if pack != nil {
 		if false == session.checkPerSecond() {
@@ -221,6 +231,7 @@ func (session *TCPSession) writeMsgLoop() {
 				session.Close()
 				return
 			}
+			//session.conn.SetDeadline(time.Now().Add(time.Duration(60) * time.Second))
 			GetTCPServerQos().AddWritePacket(wLen)
 		case <-session.closeChan:
 			return

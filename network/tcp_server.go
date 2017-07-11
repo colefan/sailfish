@@ -16,6 +16,7 @@ func accept(listener net.Listener) (net.Conn, error) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
+			fmt.Printf("listenr accept error %v\n", err)
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
@@ -110,8 +111,10 @@ func (s *TCPServer) Serve(handler HandleFunc) {
 	fmt.Println("TcpServer Listen " + s.listener.Addr().String())
 
 	for {
-
+		//	fmt.Println("wait next connection ")
 		conn, err := accept(s.listener)
+		//conn.SetDeadline
+		fmt.Println(">>>>>>accept a new connection")
 		if err != nil {
 			//TODO LOG
 			fmt.Println("[ERROR] accept conn error :" + err.Error())
