@@ -8,10 +8,9 @@ import (
 
 	"fmt"
 
-	"sailfish/network"
-
 	"github.com/colefan/config"
 	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/network"
 )
 
 const (

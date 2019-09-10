@@ -1,4 +1,4 @@
-module sailfish
+module github.com/colefan/sailfish
 
 go 1.13
 

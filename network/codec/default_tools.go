@@ -1,8 +1,7 @@
 package codec
 
 import (
-	"sailfish/network"
-
+	"github.com/colefan/sailfish/network"
 	"github.com/golang/protobuf/proto"
 )
 

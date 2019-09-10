@@ -1,8 +1,9 @@
 package gate
 
 import (
-	"sailfish/network"
 	"sync"
+
+	"github.com/colefan/sailfish/network"
 )
 
 const (

@@ -1,11 +1,13 @@
 package gate
 
 import (
-	"sailfish/gate/gatemsg"
-	"sailfish/network"
-	"sailfish/network/codec"
 	"strings"
 	"time"
+
+	"github.com/colefan/sailfish/network/codec"
+
+	"github.com/colefan/sailfish/gate/gatemsg"
+	"github.com/colefan/sailfish/network"
 )
 
 //ClientHandler handler for real client session

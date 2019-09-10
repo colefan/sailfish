@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"sailfish/network"
-	"sailfish/network/codec"
 	"time"
 
-	"sailfish/console"
-
 	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/console"
+	"github.com/colefan/sailfish/network"
+	"github.com/colefan/sailfish/network/codec"
 )
 
 func main() {

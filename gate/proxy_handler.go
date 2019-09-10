@@ -1,10 +1,11 @@
 package gate
 
 import (
-	"sailfish/gate/gatemsg"
-	"sailfish/network"
-	"sailfish/network/codec"
 	"time"
+
+	"github.com/colefan/sailfish/gate/gatemsg"
+	"github.com/colefan/sailfish/network"
+	"github.com/colefan/sailfish/network/codec"
 )
 
 // ProxyInnerHandler Server request

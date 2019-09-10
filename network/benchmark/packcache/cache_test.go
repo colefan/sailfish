@@ -5,7 +5,7 @@ import (
 
 	"sync"
 
-	"sailfish/network"
+	"github.com/colefan/sailfish/network"
 )
 
 type testLoop struct {

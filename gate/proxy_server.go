@@ -1,8 +1,9 @@
 package gate
 
 import (
-	"sailfish/network"
 	"sync/atomic"
+
+	"github.com/colefan/sailfish/network"
 )
 
 //SERVER_TYPE

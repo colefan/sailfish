@@ -6,9 +6,9 @@ import (
 	"io"
 	"math"
 	"net"
-	"sailfish/network"
 	"strconv"
 
+	"github.com/colefan/sailfish/network"
 	"github.com/gorilla/websocket"
 )
 

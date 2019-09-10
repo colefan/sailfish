@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"sailfish/gate"
+	"github.com/colefan/sailfish/gate"
 )
 
 func main() {

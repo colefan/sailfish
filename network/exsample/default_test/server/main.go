@@ -6,12 +6,13 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 	"os"
-	"sailfish/console"
-	"sailfish/network"
-	"sailfish/network/codec"
+
 	"time"
 
 	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/console"
+	"github.com/colefan/sailfish/network"
+	"github.com/colefan/sailfish/network/codec"
 )
 
 var msgHandler *MyHandler

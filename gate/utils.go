@@ -1,9 +1,9 @@
 package gate
 
 import (
-	"sailfish/gate/gatemsg"
-	"sailfish/network"
-	"sailfish/network/codec"
+	"github.com/colefan/sailfish/gate/gatemsg"
+	"github.com/colefan/sailfish/network"
+	"github.com/colefan/sailfish/network/codec"
 )
 
 // ErrorClientPack error gate client msg
