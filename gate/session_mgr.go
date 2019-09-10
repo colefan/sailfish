@@ -1,7 +1,9 @@
 package gate
 
-import "github.com/colefan/sailfish/network"
-import "sync"
+import (
+	"sailfish/network"
+	"sync"
+)
 
 const (
 	defaultServerListSize = 32

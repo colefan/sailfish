@@ -1,0 +1,55 @@
+syntax = "proto3";
+package gatemsg;
+
+message MsgTypeGateClient{
+    enum GateProtocol {
+        NotUse              = 0;
+        IdBegin             = 0xEF00;   //网关消息开始ID
+        ClientHandShakeReq  = 0xEF01;   //客户端会话新增握手请求
+        ClientHandShakeResp = 0xEF02;   //客户端会话新增握手响应
+        ClientBeatReq       = 0xEF03;   //客户端心跳请求
+        ClientBeatResp      = 0xEF04;   //客户端心跳响应
+        GateErrorNt         = 0xEF0A;     //网关错误通知
+        IdEnd               = 0xE10;      //网关消息结束ID
+    }
+}
+
+enum ErrorCode
+{
+	NoError = 0;
+	UnmarshalFailed = 1;
+    NoTargetServer = 2;
+    HandShakeFailed = 3;
+}
+
+message GateErrorNt
+{
+    int32 cmd_id            = 1;
+    int32 error_code        = 2; //错误码
+}
+
+
+message ClientHandShakeReq
+{
+    string  client_type         = 1;//客户端类型
+    string  client_version      = 2;// 客户端版本
+    string  client_channel      = 3;
+    string  client_auth         = 4;//特定客户端鉴权码，预留
+}
+
+message ClientHandShakeResp
+{
+    int32   server_time_second  = 1;
+    string  token               = 2;  //预留后期用做消息加密校验使用
+}
+
+message ClientBeatReq
+{
+    int32   req_time        = 1;
+}
+
+message ClientBeatResp
+{
+    int32 req_time          = 1;
+    int32 reply_time        = 2;
+}

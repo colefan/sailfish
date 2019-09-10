@@ -2,26 +2,25 @@ package network
 
 import (
 	"errors"
+	"strings"
 	"sync"
 	"sync/atomic"
 
 	"time"
 
-	"fmt"
-
 	"github.com/colefan/logg"
 )
 
-const (
-	ModeEvent   = 0 //事件机制，用于投递消息
-	ModeHandler = 1 //每个session就是独立一个goroutine
-)
+// const (
+// 	ModeEvent   = 0 //事件机制，用于投递消息
+// 	ModeHandler = 1 //每个session就是独立一个goroutine
+// )
 
 //Client client
 type Client struct {
 	networkType           string
 	address               string
-	mode                  int
+	mode                  MsgHandlerModeType
 	log                   *logg.BaseLogger
 	protocol              Protocol
 	sendChannelBufferSize int
@@ -37,19 +36,7 @@ type Client struct {
 
 	disposeOnce   sync.Once
 	reconnectWait sync.WaitGroup
-}
-
-//NewClient new client
-func NewClient(network string, address string, protocol Protocol, sendBufferSize int, mode int) *Client {
-	c := &Client{
-		networkType:           network,
-		address:               address,
-		protocol:              protocol,
-		sendChannelBufferSize: sendBufferSize,
-		mode: mode,
-	}
-	return c
-
+	agentHandler  SessionHandler
 }
 
 //SetSessionOpenedCallback setter
@@ -98,7 +85,7 @@ func (c *Client) SetAddress(address string) {
 }
 
 //SetMode setter
-func (c *Client) SetMode(mode int) {
+func (c *Client) SetMode(mode MsgHandlerModeType) {
 	c.mode = mode
 }
 
@@ -113,24 +100,31 @@ func (c *Client) WriteMsg(pack PackInf) error {
 }
 
 //Init init
-func (c *Client) Init() error {
+func (c *Client) init() error {
 	c.clientClosed = 0
 	//c.closeChannel = make(chan string)
 	if c.log == nil {
 		return errors.New("log is nil")
 	}
-	if c.networkType != "tcp" {
+	if c.networkType != NetWorkTypeTCP && c.networkType != NetWorkTypeWS && c.networkType != NetWorkTypeWSS {
 		return errors.New("unknow network tyep for client : " + c.networkType)
 	}
 	if len(c.address) == 0 {
 		return errors.New("unkown address for client : " + c.address)
 	}
+	if strings.Index(c.address, ":") < 0 {
+		return errors.New("unkown address for client ：" + c.address)
+	}
 	if c.protocol == nil {
 		return errors.New("protocol is nil ")
 	}
-	if c.mode == ModeEvent {
+	if c.mode == MsgHandleModeEvent {
 		if c.dispatcher == nil {
 			return errors.New("dispatcher is nil")
+		}
+	} else {
+		if c.agentHandler == nil {
+			return errors.New("sessionHandler is nil ")
 		}
 	}
 
@@ -140,7 +134,15 @@ func (c *Client) Init() error {
 //Run run
 func (c *Client) Run() error {
 	var err error
-	c.TCPClient, err = NewTCPClient(c.networkType, c.address, c.protocol, c.sendChannelBufferSize, c.mode, c.dispatcher)
+	err = c.init()
+	if err != nil {
+		return err
+	}
+	if c.networkType == NetWorkTypeWS || c.networkType == NetWorkTypeWSS {
+		c.TCPClient, err = createWebSocketClient(c.networkType, c.address, c.protocol, c.sendChannelBufferSize, c.mode, c.dispatcher, c.agentHandler)
+	} else {
+		c.TCPClient, err = createTCPClient(c.networkType, c.address, c.protocol, c.sendChannelBufferSize, c.mode, c.dispatcher, c.agentHandler)
+	}
 	if err != nil {
 		return err
 	}
@@ -162,16 +164,16 @@ func (c *Client) closeCallback(session *TCPSession) {
 	//atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
 
 	if c.autoReconnect {
-		if c.mode == ModeEvent {
-			fmt.Println("swap")
+		if c.mode == MsgHandleModeEvent {
+			netInfo("reconnect swap")
 			atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
-			fmt.Println("add")
+			netInfo("reconnect add")
 			c.reconnectWait.Add(1)
-			closePack := new(BasePack)
-			closePack.SetPackID(99999)
-			closePack.SetPackType(11111)
+			closePack := GetPooledPack() //new(BasePack)
+			closePack.SetCmd(9999)
+			closePack.SetMagic(MagicNumberClientInner)
 			c.dispatcher.PostData(closePack, nil)
-			fmt.Println("wait")
+			netInfo("reconnect wait")
 			c.reconnectWait.Wait()
 			go c.Reconnect()
 		} else {
@@ -190,7 +192,7 @@ func (c *Client) ShutDown() {
 func (c *Client) Reconnect() {
 	count := time.Duration(1)
 	for {
-		fmt.Printf("reconnected count = %d \n", count)
+		netInfo("reconnected count = %d ", count)
 		time.Sleep(time.Second * 5 * count)
 		err := c.Run()
 		if err == nil {
@@ -208,10 +210,11 @@ func (c *Client) Reconnect() {
 }
 
 func (c *Client) loop() {
-	if c.mode == ModeEvent {
+	if c.mode == MsgHandleModeEvent {
 		c.loopEvent()
 	} else {
-		c.loopHandler()
+		// c.agentHandler.HandleMsg(msg PackInf)
+		// c.loopHandler()
 	}
 }
 
@@ -221,7 +224,7 @@ func (c *Client) loopEvent() {
 		for {
 
 			item := c.GetPackDispatcher().FetchData()
-			if item.Pack.GetPackID() == 99999 && item.Pack.GetPackType() == 11111 {
+			if item.Pack.GetCmd() == 99999 && item.Pack.GetMagic() == MagicNumberClientInner {
 				if atomic.CompareAndSwapInt32(&c.clientClosed, 1, 0) {
 					c.reconnectWait.Done()
 					return
@@ -283,4 +286,14 @@ func (c *Client) GetSession() *TCPSession {
 	}
 
 	return c.TCPClient.session
+}
+
+// SetHandler setter
+func (c *Client) SetHandler(agent SessionHandler) {
+	c.agentHandler = agent
+}
+
+// GetHandler getter handler
+func (c *Client) GetHandler() SessionHandler {
+	return c.agentHandler
 }

@@ -1,9 +1,10 @@
 package network
 
 import (
-	"fmt"
 	"net"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -16,7 +17,7 @@ func accept(listener net.Listener) (net.Conn, error) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			fmt.Printf("listenr accept error %v\n", err)
+			netError("listenr accept error %v", err)
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
@@ -38,18 +39,27 @@ func accept(listener net.Listener) (net.Conn, error) {
 
 //TCPServer cls
 type TCPServer struct {
-	sessMgr             *SessionMgr
-	dispatcher          PackDispatcherInf
-	listener            net.Listener
-	sessionSendChanBuff int
-	protocol            Protocol
-	id                  uint64
-	serverID            string
-	mode                int
-	needCheckPerSecond  bool
+	sessMgr                          *SessionMgr
+	dispatcher                       PackDispatcherInf
+	listener                         net.Listener
+	sessionSendChanBuff              int
+	protocol                         Protocol
+	id                               uint64
+	serverID                         string
+	mode                             MsgHandlerModeType
+	needCheckPerSecond               bool
+	isWebSocket                      bool
+	wsUpgrader                       websocket.Upgrader
+	handler                          HandleFunc
+	netWorkType                      string
+	address                          string
+	sessionIdleTimeout               int //读超时设置
+	webSocketPath                    string
+	sessionCloseCallbackForModeEvent func(session *TCPSession)
+	agentHandler                     SessionHandler
 }
 
-func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispacher PackDispatcherInf) *TCPServer {
+func newTCPServer(network string, l net.Listener, p Protocol, sendChanSize int, mode MsgHandlerModeType, dispacher PackDispatcherInf, agentHandler SessionHandler) *TCPServer {
 	s := &TCPServer{
 		listener:            l,
 		protocol:            p,
@@ -57,6 +67,9 @@ func newTCPServer(l net.Listener, p Protocol, sendChanSize int, mode int, dispac
 		mode:                mode,
 		dispatcher:          dispacher,
 		needCheckPerSecond:  false,
+		isWebSocket:         false,
+		netWorkType:         network,
+		agentHandler:        agentHandler,
 	}
 	if s.sessionSendChanBuff <= 0 {
 		s.sessionSendChanBuff = defaultSendChannelBufferSize
@@ -108,61 +121,101 @@ func (s *TCPServer) GetServerID() string {
 
 //Serve server loop
 func (s *TCPServer) Serve(handler HandleFunc) {
-	fmt.Println("TcpServer Listen " + s.listener.Addr().String())
+	if s.netWorkType == "ws" || s.netWorkType == "wss" {
+		s.serveWs(handler)
+	} else {
+		s.serveSocket(handler)
+	}
+
+}
+
+func (s *TCPServer) serveSocket(handler HandleFunc) {
+	netInfo("TcpServer Listen " + s.listener.Addr().String())
 
 	for {
 		//	fmt.Println("wait next connection ")
 		conn, err := accept(s.listener)
 		//conn.SetDeadline
-		fmt.Println(">>>>>>accept a new connection")
+		netInfo(">>>>>>tcp server accept a new connection")
 		if err != nil {
-			//TODO LOG
-			fmt.Println("[ERROR] accept conn error :" + err.Error())
+			netError("tcp server accept conn error :" + err.Error())
 			return
 		}
-		GetTCPServerQos().AddAcceptedSessions()
 
-		codec, err := s.protocol.NewCodec(conn)
+		codec, err := s.protocol.NewSocketCodec(conn)
 		if err != nil {
-			//TODO LOG
-			fmt.Println("[ERROR] new codec error :" + err.Error())
+			netError("new socket codec error :" + err.Error())
 			conn.Close()
 			continue
 		}
-		session := newTCPSession(conn, codec, s.sessionSendChanBuff, s.dispatcher)
+		session := newTCPSession(conn, codec, s.sessionSendChanBuff, s.dispatcher, s.agentHandler)
+		session.SetTimeOut(s.sessionIdleTimeout)
+		session.SetCloseCallback(s.afterSessionClosed)
+		session.SetCloseCallbackForModeEvent(s.sessionCloseCallbackForModeEvent)
+		GetTCPServerQos().AddAcceptedSessions()
 		if s.needCheckPerSecond {
 			session.SetCheckPerSecond(true)
 		}
+
 		s.GetSessionMgr().AddSession(session)
 		if handler != nil {
 			session.Start(true)
-			go handler(session)
+			//go handler(session)
 		} else {
 			session.Start(false)
 		}
 
 	}
+}
 
+func (s *TCPServer) afterSessionClosed(session *TCPSession) {
+	s.GetSessionMgr().RemoveSession(session)
+	GetTCPServerQos().AddClosedSessions()
 }
 
 //Stop stop and distroy server
 func (s *TCPServer) Stop() {
 	if s.listener != nil {
-		fmt.Println("before listener close")
+		netInfo("before listener close")
 		s.listener.Close()
-		fmt.Println("after listener closed")
+		netInfo("after listener closed")
 		if s.sessMgr != nil {
-			fmt.Println("before session manager closed")
+			netInfo("before session manager closed")
 			s.sessMgr.Dispose()
-			fmt.Println("after session manager closed")
+			netInfo("after session manager closed")
 		}
 		if s.dispatcher != nil {
-			fmt.Println("before dispatcher closed")
+			netInfo("before dispatcher closed")
 			s.dispatcher.Dispose()
-			fmt.Println("after dispatcher closed")
+			netInfo("after dispatcher closed")
 		}
 	}
 
+}
+
+// SetSessionHandler setter only ModeHandle valid
+func (s *TCPServer) SetSessionHandler(h HandleFunc) {
+	s.handler = h
+}
+
+func (s *TCPServer) SetSessionIdleTimeOut(t int) {
+	s.sessionIdleTimeout = t
+}
+
+func (s *TCPServer) GetWebSocketPath() string {
+	if s.webSocketPath == "" {
+		return "ws"
+	} else {
+		return s.webSocketPath
+	}
+}
+
+func (s *TCPServer) SetWebSocketPath(path string) {
+	s.webSocketPath = path
+}
+
+func (s *TCPServer) SetSessionCloseCallbackForModeEvent(f func(s *TCPSession)) {
+	s.sessionCloseCallbackForModeEvent = f
 }
 
 //HandleFunc  handler

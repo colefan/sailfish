@@ -13,7 +13,7 @@ type ChannelPackDispatcher struct {
 //NewChannelPackDispatcher creator
 func NewChannelPackDispatcher(size int) *ChannelPackDispatcher {
 	d := &ChannelPackDispatcher{}
-	if size <= 1020 {
+	if size <= 1024 {
 		size = defaultChannelPackBuffer
 	}
 	d.bufferSize = size
@@ -27,6 +27,7 @@ func (d *ChannelPackDispatcher) PostData(pack PackInf, session *TCPSession) {
 	d.packBuffer <- item
 }
 
+// FetchData fechdata
 func (d *ChannelPackDispatcher) FetchData() *PackCache {
 	item := <-d.packBuffer
 	return item

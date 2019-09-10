@@ -1,0 +1,46 @@
+syntax = "proto3";
+package gatemsg;
+
+message MsgTypeGateInnerNode{
+    enum GateProtocol {
+            NotUse              = 0 ;
+            IdBegin             = 0xEF10;   //网关消息开始ID
+            RegServerReq        = 0xEF11;   //服务注册请求
+            RegServerResp       = 0xEF12;   //服务注册响应
+            ServerBeatReq       = 0xEF13;   //服务器心跳请求
+            ServerBeatResp      = 0xEF14;   //服务器心跳响应
+            ClientCloseReq      = 0xEF15;   //客户端下线
+            ClientCloseResp     = 0xEF16;   //
+            IdEnd               = 0xEF1F;    //网关消息结束ID
+    }
+}
+
+
+
+//
+message RegServerReq
+{
+    int32    server_type     = 1;
+    int32   server_id       = 2;
+    string  ip              = 3;
+    int32   port            = 4;
+    int32   max_limit       = 5;
+
+}
+
+//
+message RegServerResp 
+{
+    int32   time        = 1;
+}
+
+message ServerBeatReq{
+    int32   req_time        = 1;   
+}
+
+message ServerBeatResp
+{
+    int32   req_time       = 1;
+    int32   reply_time     = 2;
+}
+

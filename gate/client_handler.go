@@ -1,19 +1,175 @@
 package gate
 
-import "github.com/colefan/sailfish/network"
+import (
+	"sailfish/gate/gatemsg"
+	"sailfish/network"
+	"sailfish/network/codec"
+	"strings"
+	"time"
+)
 
 //ClientHandler handler for real client session
 type ClientHandler struct {
+	pGate *Gate
 }
 
+// NewClientHandler new client Handler
+func NewClientHandler(pGate *Gate) *ClientHandler {
+	h := &ClientHandler{pGate: pGate}
+	return h
+}
+
+// SessionOpen 打开一个会话
 func (h *ClientHandler) SessionOpen(session *network.TCPSession) {
-	//TODO
+	userData := NewClientUserData()
+	remoteAddress := session.RemoteAddress()
+	if strings.Index(remoteAddress, ":") > 0 {
+		userData.UserIP = remoteAddress[0:strings.Index(remoteAddress, ":")]
+	} else {
+		userData.UserIP = remoteAddress
+	}
+	gLog.Debug("client session opened,session_id = %d,user_ip = %v", session.ID(), userData.UserIP)
+	session.SetUserData(userData)
+	GetClientSessionMntInst().AddSession(session)
+
 }
 
+// SessionClose 关闭一个会话
 func (h *ClientHandler) SessionClose(session *network.TCPSession) {
-	//TODO
+	gLog.Debug("client session closed, session_id = %d,status = %d ", session.ID(), session.Status())
+	if session.Status() > 0 {
+		//通知相关的代理服务下线
+		if user, ok := session.UserData().(*ClientUserData); ok {
+			if user.ProxyNodeList != nil {
+				for k, v := range user.ProxyNodeList {
+					if v != nil {
+						notifyClientCloseReq(k, v)
+					}
+				}
+			}
+
+		}
+	}
+
+	GetClientSessionMntInst().DelSession(session)
 }
 
-func (h *ClientHandler) HandleMessage(pack network.PackInf, session *network.TCPSession) {
-	//TODO
+// HandleMsg 处理消息请求
+func (h *ClientHandler) HandleMsg(pack network.PackInf) {
+	switch pack.GetCmd() {
+	case int32(gatemsg.MsgTypeGateClient_ClientHandShakeReq):
+		h.HandleClientShakeReq(pack)
+	case int32(gatemsg.MsgTypeGateClient_ClientBeatReq):
+		h.HandleClientBeatReq(pack)
+	default:
+		h.ForwordToProxyNode(pack)
+	}
+
+}
+
+// HandleClientShakeReq logic
+func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
+	var reqMsg gatemsg.ClientHandShakeReq
+	err := codec.ProtobufDecoder(pack, &reqMsg)
+	if err != nil {
+		gLog.Error("ClientHandShakeReq decode failed:", err)
+		ntpack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_UnmarshalFailed))
+		pack.GetTCPSession().WriteMsg(ntpack)
+		network.FreePack(pack)
+		return
+	}
+	if user, ok := pack.GetTCPSession().UserData().(*ClientUserData); ok {
+		if user.Status == ClientStatusInit {
+			user.ChannleID = reqMsg.ClientChannel
+			user.ClientType = reqMsg.ClientType
+			user.Version = reqMsg.ClientVersion
+			user.ClientAuth = reqMsg.ClientAuth
+			user.Status = ClientStatusHandShaked
+			var respMsg gatemsg.ClientHandShakeResp
+			respMsg.ServerTimeSecond = int32(time.Now().Unix())
+			respMsg.Token = ""
+			respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateClient_ClientHandShakeResp), &respMsg)
+			pack.GetTCPSession().WriteMsg(respPack)
+			network.FreePack(pack)
+			return
+		}
+	}
+
+	ntpack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_HandShakeFailed))
+	pack.GetTCPSession().WriteMsg(ntpack)
+	network.FreePack(pack)
+}
+
+// HandleClientBeatReq logic
+func (h *ClientHandler) HandleClientBeatReq(pack network.PackInf) {
+	var reqMsg gatemsg.ClientBeatReq
+	if err := codec.ProtobufDecoder(pack, &reqMsg); err != nil {
+		ntpack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_UnmarshalFailed))
+		pack.GetTCPSession().WriteMsg(ntpack)
+		network.FreePack(pack)
+		return
+	}
+	if user, ok := pack.GetTCPSession().UserData().(*ClientUserData); ok {
+		user.LastBeatTime = time.Now().Unix()
+	}
+
+	var respMsg gatemsg.ClientBeatResp
+	respMsg.ReqTime = reqMsg.ReqTime
+	respMsg.ReplyTime = int32(time.Now().Unix())
+	respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateClient_ClientBeatResp), &respMsg)
+	pack.GetTCPSession().WriteMsg(respPack)
+	network.FreePack(pack)
+}
+
+// ForwordToProxyNode logic
+func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
+	session := pack.GetTCPSession()
+	if user, ok := session.UserData().(*ClientUserData); ok {
+		if user.UID != 0 {
+			pack.SetUID(user.UID)
+		}
+		if node, ok2 := user.ProxyNodeList[int32(pack.GetTargetType())]; ok2 {
+			// node.Session
+			if node.Session != nil {
+				node.Session.WriteMsg(pack)
+				return
+			}
+		} else {
+			tmpNode := GetProxyServerStoreInst().MatchProxyServer(int32(pack.GetTargetType()))
+			if tmpNode != nil {
+				user.ProxyNodeList[int32(pack.GetTargetType())] = tmpNode
+				if tmpNode.Session != nil {
+					tmpNode.Session.WriteMsg(pack)
+					return
+				}
+			} else {
+				errPack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_NoTargetServer))
+				pack.GetTCPSession().WriteMsg(errPack)
+			}
+		}
+	}
+
+	network.FreePack(pack)
+
+}
+
+func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode) {
+	if serverInfo == nil {
+		return
+	}
+	pack := network.GetPooledPack()
+	msg := pack.(*network.Message)
+	msg.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
+	if serverInfo.Session != nil {
+		err := serverInfo.Session.WriteMsg(pack)
+		if err != nil {
+			tmpServerInfo := GetProxyServerStoreInst().Find(serverInfo.ServerID, serverInfo.ServerType)
+			if tmpServerInfo != nil && tmpServerInfo.Session != nil {
+				pack2 := network.GetPooledPack()
+				pack2.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
+				tmpServerInfo.Session.WriteMsg(pack2)
+			}
+		}
+	}
+
 }

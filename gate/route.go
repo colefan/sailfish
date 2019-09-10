@@ -1,21 +1,16 @@
 package gate
 
-//SERVER_TYPE
-const SERVER_TYPE_UNKNOWN = 0
-const SERVER_TYPE_LOGIN = 1
-const SERVER_TYPE_HALL = 2
-const SERVER_TYPE_GAME = 10
+import "sailfish/network"
 
 //Route route
 type Route interface {
-	RouteServer(serverType int) int
+	RouteServer(serverType int, pack network.PackInf)
 }
 
 type BaseRoute struct {
-	serverBalance map[int]int
+	// serverBalance map[int]int
 }
 
-func (r *BaseRoute) RouteServer(serverType int) int {
+func (r *BaseRoute) RouteServer(ProxyServerNode int, pack network.PackInf) {
 
-	return 0
 }

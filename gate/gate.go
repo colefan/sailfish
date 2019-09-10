@@ -1,31 +1,35 @@
 package gate
 
 import (
+	"errors"
 	"os"
 
 	"os/signal"
 
 	"fmt"
 
+	"sailfish/network"
+
 	"github.com/colefan/config"
 	"github.com/colefan/logg"
-	"github.com/colefan/sailfish/network"
 )
 
 const (
-	MaxNum int = 3000
+	// DefaultMaxNum 默认最大用户数
+	DefaultMaxNum int = 5000
 )
 
 //Gate a gate for routing and load balance
 type Gate struct {
 	MaxClientConnNum int
-	LittleEndian     bool  //大小字节
-	route            Route //路由设置
-	routeServer      *network.TCPServer
-	clientServer     *network.TCPServer
+	LittleEndian     bool //大小字节
+	proxyServer      *network.Server
+	certFile         string
+	keyFile          string
+	clientServer     *network.Server
 	bInit            bool
-	clientHandler    SessionHandler //面向客户端的handler
-	serverHandler    SessionHandler //面向服务端的handler
+	clientHandler    network.SessionHandler //面向客户端的handler
+	serverHandler    network.SessionHandler //面向服务端的handler
 	clientProtocol   network.Protocol
 	serverProtocol   network.Protocol
 	logger           *logg.BaseLogger
@@ -40,21 +44,21 @@ func (g *Gate) GetClientServerSessionMgr() *network.SessionMgr {
 	return nil
 }
 
-//GetRouteServerSessionMgr get route server manager
-func (g *Gate) GetRouteServerSessionMgr() *network.SessionMgr {
-	if g.routeServer != nil {
-		return g.routeServer.GetSessionMgr()
+//GetProxyServerSessionMgr get proxy server manager
+func (g *Gate) GetProxyServerSessionMgr() *network.SessionMgr {
+	if g.proxyServer != nil {
+		return g.proxyServer.GetSessionMgr()
 	}
 	return nil
 }
 
 //RegisterClientHandler register client handler
-func (g *Gate) RegisterClientHandler(handler SessionHandler) {
+func (g *Gate) RegisterClientHandler(handler network.SessionHandler) {
 	g.clientHandler = handler
 }
 
-//RegisterServerHandler register server handler
-func (g *Gate) RegisterServerHandler(handler SessionHandler) {
+//RegisterProxyServerHandler register server handler
+func (g *Gate) RegisterProxyServerHandler(handler network.SessionHandler) {
 	g.serverHandler = handler
 }
 
@@ -110,14 +114,11 @@ func (g *Gate) Init() error {
 	}
 	g.logger.Info("gate config parsing success.")
 
-	//g.clientHandler = new(ClientHandler)
-	//g.serverHandler = new(ServerHandler)
-	//设置路由规则
-	g.route = new(BaseRoute)
-	//TODO
+	g.clientHandler = new(ClientHandler)
+	g.serverHandler = new(ProxyInnerHandler)
+
 	g.bInit = true
 	return nil
-
 }
 
 //Run gate
@@ -140,22 +141,32 @@ func (g *Gate) Run() {
 	}
 	var err error
 	gLog.Info(g.conf.String("serverListner"))
-	g.routeServer, err = network.NewTCPServer("tcp", g.conf.String("serverListner"), g.serverProtocol, 10240, 1, nil)
-	if err != nil {
-		g.logger.Error("serverListner create error " + err.Error())
-		return
+	g.proxyServer = network.NewTCPServer(g.conf.String("serverListner"), network.MsgHandleModeHandler, g.serverProtocol)
+	g.proxyServer.SetSendChannelSize(10240)
+	g.proxyServer.SetSessionHandler(g.serverHandler)
+
+	clientServerNetworkType := g.conf.String("clientNetwork")
+	switch clientServerNetworkType {
+	case network.NetWorkTypeTCP:
+		g.clientServer = network.NewTCPServer(g.conf.String("clientListener"), network.MsgHandleModeHandler, g.clientProtocol)
+	case network.NetWorkTypeWS:
+		g.clientServer = network.NewWSServer(g.conf.String("clientListener"), network.MsgHandleModeHandler, g.clientProtocol)
+	case network.NetWorkTypeWSS:
+		g.clientServer = network.NewWSServer(g.conf.String("clientListener"), network.MsgHandleModeHandler, g.clientProtocol)
+		g.keyFile = g.conf.String("keyFile")
+		g.certFile = g.conf.String("certFile")
+		g.clientServer.SetKeyFilePath(g.keyFile)
+		g.clientServer.SetCrtFilePath(g.certFile)
+	default:
+		err = errors.New("unknow client network type:" + clientServerNetworkType)
 	}
-
-	g.clientServer, err = network.NewTCPServer("tcp", g.conf.String("clientListner"), g.clientProtocol, 256, 1, nil)
-
 	if err != nil {
 		g.logger.Error("clientListener create error " + err.Error())
 		return
 	}
+	g.clientServer.SetSendChannelSize(256)
+	g.clientServer.SetSessionHandler(g.clientHandler)
 	g.clientServer.SetCheckPerSecond(true)
-
-	go g.routeServer.Serve(g.routeServerLoop)
-	go g.clientServer.Serve(g.clientServerLoop)
 
 }
 
@@ -181,8 +192,8 @@ func (g *Gate) Daemon() {
 //ShutDown shutdown gate server
 func (g *Gate) ShutDown() {
 	fmt.Println("shutdown route server")
-	if g.routeServer != nil {
-		g.routeServer.Stop()
+	if g.proxyServer != nil {
+		g.proxyServer.Stop()
 	}
 	fmt.Println("shutdown client server ")
 
@@ -192,42 +203,5 @@ func (g *Gate) ShutDown() {
 	fmt.Println("finish")
 }
 
-func (g *Gate) routeServerLoop(session *network.TCPSession) {
-	for {
-		if session.Status() == ServerInit {
-			g.serverHandler.SessionOpen(session)
-			session.SetStatus(ServerConnected)
-		} else {
-			msg, err := session.ReadMsg()
-			if err != nil {
-				session.Close()
-				//g.serverHandler.SessionClose(session)
-				return
-			}
-			g.serverHandler.HandleMessage(msg, session)
-		}
-	}
-
-}
-
-func (g *Gate) clientServerLoop(session *network.TCPSession) {
-	for {
-		if session.Status() == StatusInit {
-			session.SetCheckPerSecond(true)
-			session.SetTimeOut(180)
-			g.clientHandler.SessionOpen(session)
-			session.SetStatus(StatusConnected)
-		} else {
-			msg, err := session.ReadMsg()
-			if err != nil {
-				session.Close()
-				//g.clientHandler.SessionClose(session)
-				//fmt.Println("test for session close error = %s", err.Error())
-				return
-			}
-			g.clientHandler.HandleMessage(msg, session)
-
-		}
-	}
-
-}
+// HandleMsgFunc handle msg func
+type HandleMsgFunc func(pack network.PackInf)

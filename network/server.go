@@ -2,10 +2,18 @@ package network
 
 import (
 	"errors"
+	"strings"
 
 	"time"
 
 	"github.com/colefan/logg"
+)
+
+type MsgHandlerModeType int
+
+const (
+	MsgHandleModeEvent MsgHandlerModeType = iota
+	MsgHandleModeHandler
 )
 
 //Server server class
@@ -15,25 +23,24 @@ type Server struct {
 	address         string
 	protocol        Protocol
 	sendChannelSize int
-	mode            int
+	mode            MsgHandlerModeType
 	logicLoopFunc   func(PackInf)
 	dispatcher      PackDispatcherInf
 	bQos            bool //是否开启qos
+	crtFilePath     string
+	keyFilePath     string
+	agentHandler    SessionHandler
 	*TCPServer
 }
 
-//NewServer new server
-func NewServer(network string, address string, p Protocol, sendBufferSize int, mode int, dispatcher PackDispatcherInf) *Server {
-	s := &Server{
-		networkType:     network,
-		address:         address,
-		protocol:        p,
-		sendChannelSize: sendBufferSize,
-		mode:            mode,
-		dispatcher:      dispatcher,
-	}
-	s.TCPServer, _ = NewTCPServer(network, address, p, sendBufferSize, mode, dispatcher)
-	return s
+// SetCrtFilePath set file path
+func (s *Server) SetCrtFilePath(path string) {
+	s.crtFilePath = path
+}
+
+// SetKeyFilePath set file path
+func (s *Server) SetKeyFilePath(path string) {
+	s.keyFilePath = path
 }
 
 //SetQos setter
@@ -52,7 +59,7 @@ func (s *Server) SetDispatcher(d PackDispatcherInf) {
 }
 
 //SetMode setter
-func (s *Server) SetMode(mode int) {
+func (s *Server) SetMode(mode MsgHandlerModeType) {
 	s.mode = mode
 }
 
@@ -81,13 +88,18 @@ func (s *Server) SetAddress(address string) {
 	s.address = address
 }
 
+// SetSessionHandler agent handler
+func (s *Server) SetSessionHandler(agentHandler SessionHandler) {
+	s.agentHandler = agentHandler
+}
+
 //Init init server
-func (s *Server) Init() error {
+func (s *Server) init() error {
 	if s.log == nil {
 		return errors.New("log is nil")
 	}
 
-	if s.networkType != "tcp" {
+	if s.networkType != NetWorkTypeTCP && s.networkType != NetWorkTypeWS && s.networkType != NetWorkTypeWSS {
 		return errors.New("unkowned network type " + s.networkType)
 	}
 
@@ -96,30 +108,55 @@ func (s *Server) Init() error {
 	}
 
 	if len(s.address) == 0 {
-		return errors.New("address is invalid")
+		return errors.New("address is invalid:" + s.address)
+	}
+	if strings.Index(s.address, ":") < 0 {
+		return errors.New("adress is invalid:" + s.address)
 	}
 
-	if s.mode == ModeEvent {
+	if s.mode == MsgHandleModeEvent {
 		if s.dispatcher == nil {
 			return errors.New("dispatcher is nil")
 		}
+		if s.logicLoopFunc == nil {
+			return errors.New("logicLoopFunc is nil")
+		}
+	} else {
+		if s.agentHandler == nil {
+			return errors.New("sessionHandler is nil")
+		}
 	}
+
+	if s.networkType == NetWorkTypeWSS {
+		if s.crtFilePath == "" || s.keyFilePath == "" {
+			return errors.New("wss : needs ssl files")
+		}
+	}
+
 	return nil
 }
 
 //Run run
 func (s *Server) Run() error {
 	var err error
-	//s.TCPServer, err = NewTCPServer(s.networkType, s.address, s.protocol, s.sendChannelSize, s.mode, s.dispatcher)
+	err = s.init()
 	if err != nil {
 		return err
 	}
+	s.TCPServer, err = newServer(s.networkType, s.address, s.protocol, s.sendChannelSize, s.mode, s.dispatcher, s.agentHandler)
+	if err != nil {
+		return err
+	}
+
 	if s.bQos {
 		GetTCPServerQos().Stat()
 	}
-	if s.mode == ModeHandler {
+
+	if s.mode == MsgHandleModeHandler {
+		netDebug("modeHandler")
 		go s.TCPServer.Serve(s.handler)
 	} else {
+		netDebug("modeEvent")
 		go s.TCPServer.Serve(nil)
 		go s.eventLoop()
 	}
@@ -164,11 +201,11 @@ func (s *Server) eventLoop() {
 func (s *Server) handler(session *TCPSession) {
 	for {
 		pack, err := session.ReadMsg()
-		pack.SetTCPSession(session)
 		if err != nil {
 			session.Close()
 			return
 		}
+		pack.SetTCPSession(session)
 		s.logicLoopFunc(pack)
 	}
 

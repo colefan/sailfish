@@ -1,0 +1,4 @@
+./gate/exsample/.exsample
+./network/exsample/default_test/client/client.exe
+./network/exsample/default_test/server/server.exe
+./.vscode

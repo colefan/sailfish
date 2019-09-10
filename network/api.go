@@ -1,72 +1,63 @@
 package network
 
-import "net"
+import (
+	"errors"
+	"net"
+)
 
-//PackInf interface of pack
-type PackInf interface {
-	GetPackType() int
-	SetPackType(packType int)
-	GetPackID() int
-	SetPackID(id int)
-	GetPackData() []byte
-	SetPackData(data []byte)
-	GetPackBody() interface{}
-	SetPackBody(msg interface{})
-	GetPackLen() int
-	SetTCPSession(session *TCPSession)
-	GetTCPSession() *TCPSession
-}
+// newServer 新增内部接口
+func newServer(network string, address string, p Protocol, sendBufferSize int, mode MsgHandlerModeType, dispatcher PackDispatcherInf, agentHandler SessionHandler) (*TCPServer, error) {
+	var err error
+	var s *TCPServer
+	if network == "ws" || network == "wss" {
+		s, err = createWebSocketServer(network, address, p, sendBufferSize, mode, dispatcher, agentHandler)
 
-//Codec 编解码接口
-type Codec interface {
-	//关闭编解码器
-	//ReceiveMsg
-	ReceiveMsg() (PackInf, error)
-	//SendMsg return len,error
-	SendMsg(msg PackInf) (int, error)
-	//SendRawMsg return len,error
-	SendRawMsg(data []byte) (int, error)
-}
-
-//Protocol 服务器遵循的协议接口
-type Protocol interface {
-	NewCodec(conn net.Conn) (Codec, error)
+	} else if network == "tcp" {
+		s, err = createTCPServer(network, address, p, sendBufferSize, mode, dispatcher, agentHandler)
+	} else {
+		return nil, errors.New("unsupport network :" + network)
+	}
+	return s, err
 }
 
 //NewTCPServer create a server with params
-func NewTCPServer(network, address string, protocol Protocol, sendChanSize int, mode int, dispatcher PackDispatcherInf) (*TCPServer, error) {
+func createTCPServer(network, address string, protocol Protocol, sendChanSize int, mode MsgHandlerModeType, dispatcher PackDispatcherInf, agentHandler SessionHandler) (*TCPServer, error) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		return nil, err
 	}
-	return newTCPServer(listener, protocol, sendChanSize, mode, dispatcher), nil
+	return newTCPServer(network, listener, protocol, sendChanSize, mode, dispatcher, agentHandler), nil
 }
 
-//NewTCPClient create a client session
-func NewTCPClient(network, address string, protocol Protocol, sendChanSize int,
-	mode int, dispatcher PackDispatcherInf) (*TCPClient, error) {
+//NewClient new client
+func newClient(network string, address string, protocol Protocol, sendBufferSize int, mode MsgHandlerModeType) *Client {
+	c := &Client{
+		networkType:           network,
+		address:               address,
+		protocol:              protocol,
+		sendChannelBufferSize: sendBufferSize,
+		mode:                  mode,
+	}
+	return c
+
+}
+
+//createTCPClient create a client session
+func createTCPClient(network, address string, protocol Protocol, sendChanSize int,
+	mode MsgHandlerModeType, dispatcher PackDispatcherInf, agent SessionHandler) (*TCPClient, error) {
 	conn, err := net.Dial(network, address)
 	if err != nil {
 		return nil, err
 	}
-	codec, err := protocol.NewCodec(conn)
+	codec, err := protocol.NewSocketCodec(conn)
 	if err != nil {
 		conn.Close()
 		return nil, err
 	}
-	return newTCPClient(conn, codec, sendChanSize, mode, dispatcher), nil
+	return newTCPClient(conn, codec, sendChanSize, mode, dispatcher, agent), nil
 }
 
-//NewClientConntectTimeout create a client session with timeout
-// func NewTCPClientTimeout(network, address string, timeout time.Duration, protocol Protocol, sendChanSize int) (*TCPClient, error) {
-// 	conn, err := net.DialTimeout(network, address, timeout)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	codec, err := protocol.NewCodec(conn)
-// 	if err != nil {
-// 		conn.Close()
-// 		return nil, err
-// 	}
-// 	return newTCPClient(conn, codec, sendChanSize), nil
-// }
+func createWebSocketClient(network, address string, p Protocol, sendChanSize int, mode MsgHandlerModeType, d PackDispatcherInf, agent SessionHandler) (*TCPClient, error) {
+	return newWebSocketClient(network, address, p, sendChanSize, mode, d, agent)
+
+}

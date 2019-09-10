@@ -6,26 +6,30 @@ import (
 
 //TCPClient cls
 type TCPClient struct {
-	session    *TCPSession
-	dispatcher PackDispatcherInf
-	mode       int
+	session      *TCPSession
+	dispatcher   PackDispatcherInf
+	mode         MsgHandlerModeType
+	isWebSocket  bool
+	agentHandler SessionHandler
 }
 
 //Start  start client
 func (c *TCPClient) Start() {
-	if c.mode == ModeEvent {
+	if c.mode == MsgHandleModeEvent {
 		c.session.Start(false)
 	} else {
 		c.session.Start(true)
 	}
 }
 
-func newTCPClient(conn net.Conn, codec Codec, sendChanSize int, mode int, dispatcher PackDispatcherInf) *TCPClient {
+func newTCPClient(conn net.Conn, codec Codec, sendChanSize int, mode MsgHandlerModeType, dispatcher PackDispatcherInf, agentHandler SessionHandler) *TCPClient {
 	client := &TCPClient{
-		dispatcher: dispatcher,
-		mode:       mode,
+		dispatcher:   dispatcher,
+		mode:         mode,
+		isWebSocket:  false,
+		agentHandler: agentHandler,
 	}
-	session := newTCPSession(conn, codec, sendChanSize, client.dispatcher)
+	session := newTCPSession(conn, codec, sendChanSize, client.dispatcher, client.agentHandler)
 	client.session = session
 
 	return client
@@ -54,4 +58,14 @@ func (client *TCPClient) ReadMsg() (PackInf, error) {
 //Close close
 func (client *TCPClient) Close() {
 	client.session.Close()
+}
+
+// SetHandler set handler
+func (client *TCPClient) SetHandler(agent SessionHandler) {
+	client.agentHandler = agent
+}
+
+// GetHandler getter
+func (client *TCPClient) GetHandler() SessionHandler {
+	return client.agentHandler
 }

@@ -1,0 +1,10 @@
+github.com/colefan/config v0.0.0-20170422052411-d056336f16b1 h1:Hs/4i7gaQD5XknNygPoI82j8F31unHJzeP9RbwHpFQA=
+github.com/colefan/config v0.0.0-20170422052411-d056336f16b1/go.mod h1:7PaSCbKg2VNFPNCYb9jzT5TANvSsRYsTnSJ8mpuIEpE=
+github.com/colefan/logg v0.0.0-20170524113419-d513e987157d h1:02Ce8tczzc8A7SV8sRtlh6nwdB1naqrxG5vxqAf0rfY=
+github.com/colefan/logg v0.0.0-20170524113419-d513e987157d/go.mod h1:0JGBp/1vSC0Nwm0Cfvm5NpJfreQh8zWrfsBNtDyNNd0=
+github.com/colefan/sailfish v0.0.1 h1:rIHIxf1ICajG/0bzgm7nZY/Amv7SnROH4Bc7YReuk4Q=
+github.com/colefan/sailfish v0.0.1/go.mod h1:mHapUQDOenVibFN/c0gjQtCCv+XJjHBe0JN9lK1x8CY=
+github.com/golang/protobuf v1.3.2 h1:6nsPYzhq5kReh6QImI3k5qWzO4PEbvbIW2cwSfR/6xs=
+github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/gorilla/websocket v1.4.1 h1:q7AeDBpnBk8AogcD4DSag/Ukw/KV+YhzLj2bP5HvKCM=
+github.com/gorilla/websocket v1.4.1/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
