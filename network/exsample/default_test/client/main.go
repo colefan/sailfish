@@ -8,7 +8,7 @@ import (
 	"sailfish/network/codec"
 	"time"
 
-	"github.com/colefan/sailfish/console"
+	"sailfish/console"
 
 	"github.com/colefan/logg"
 )

@@ -5,7 +5,7 @@ import (
 
 	"sync"
 
-	"github.com/colefan/sailfish/network"
+	"sailfish/network"
 )
 
 type testLoop struct {
@@ -24,8 +24,8 @@ func (t *testLoop) loop() {
 	wg.Add(1000)
 	go func() {
 		for i := 0; i < 1000; i++ {
-			item := new(network.BasePack)
-			item.SetPackID(i)
+			item := new(network.Message)
+			item.SetCmd(int32(i))
 			cache := new(network.PackCache)
 			cache.Pack = item
 			t.queue.Push(cache)
@@ -50,8 +50,8 @@ func (t *testLoop) loop() {
 func BenchmarkPackQueue(b *testing.B) {
 	q := new(network.PackQueue)
 	for i := 0; i < b.N; i++ {
-		pack := new(network.BasePack)
-		pack.SetPackID(i)
+		pack := new(network.Message)
+		pack.SetCmd(int32(i))
 		cache := new(network.PackCache)
 		cache.Pack = pack
 		q.Push(cache)
@@ -65,7 +65,7 @@ func BenchmarkPackQueueP(b *testing.B) {
 	b.RunParallel(func(pb *testing.PB) {
 
 		for pb.Next() {
-			pack := new(network.BasePack)
+			pack := new(network.Message)
 			cache := new(network.PackCache)
 			cache.Pack = pack
 			q.Push(cache)
