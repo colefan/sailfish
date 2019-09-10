@@ -99,6 +99,7 @@ func (g *Gate) Init() error {
 		g.logger.Async()
 	}
 	//日志设置
+	network.SetLogger(g.logger)
 
 	g.logger.Info("log starting...")
 	gLog = g.logger
@@ -121,22 +122,23 @@ func (g *Gate) Init() error {
 }
 
 //Run gate
-func (g *Gate) Run() {
+func (g *Gate) Run() error {
 	//启动服务
 	if !g.bInit {
-		g.logger.Error("gate not inited.")
-		return
+		//g.logger.Error("gate not inited.")
+		return errors.New("gate has not inited")
 	}
 	g.logger.Info("gate run ...")
 
 	if g.clientHandler == nil || g.serverHandler == nil {
-		g.logger.Error("gate client handler or server handler not registed")
-		return
+		//g.logger.Error("gate client handler or server handler not registed")
+		return errors.New("gate client handler or server handler not registed")
 	}
 	//g.logger.Info("%v", g.clientProtocol)
 	if g.clientProtocol == nil || g.serverProtocol == nil {
-		g.logger.Error("gate client protocol or server protocol is nill")
-		return
+		//g.logger.Error("gate client protocol or server protocol is nill")
+		return errors.New("gate client protocol or server protocol is nill")
+
 	}
 	var err error
 	gLog.Info(g.conf.String("serverListner"))
@@ -161,11 +163,21 @@ func (g *Gate) Run() {
 	}
 	if err != nil {
 		g.logger.Error("clientListener create error " + err.Error())
-		return
+		return err
 	}
 	g.clientServer.SetSendChannelSize(256)
 	g.clientServer.SetSessionHandler(g.clientHandler)
 	g.clientServer.SetCheckPerSecond(true)
+
+	if err := g.clientServer.Run(); err != nil {
+		return err
+	}
+
+	if err := g.proxyServer.Run(); err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
