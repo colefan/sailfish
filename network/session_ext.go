@@ -1,5 +1,7 @@
 package network
 
+import "github.com/colefan/sailfish/log"
+
 // SessionHandler session handler interface
 type SessionHandler interface {
 	SessionOpen(session *TCPSession)
@@ -40,7 +42,7 @@ func (h *DefaultSessionHandler) HandleMsg(msg PackInf) {
 	if f, ok := h.msgMapper[cmdID]; ok {
 		f(msg)
 	} else {
-		netWarn("no handler find:cmd_id = ", cmdID)
+		log.Warn("no handler find:cmd_id = ", cmdID)
 	}
 
 }

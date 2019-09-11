@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/colefan/sailfish/log"
 	"github.com/gorilla/websocket"
 )
 
@@ -215,7 +216,7 @@ func (session *TCPSession) checkPerSecond() bool {
 		}
 
 		if session.perSecondCount > session.maxReadMsgCountPerSecond {
-			netWarn("per second larger than ", session.maxReadMsgCountPerSecond)
+			log.Warn("per second larger than ", session.maxReadMsgCountPerSecond)
 			return false
 		}
 
@@ -274,7 +275,7 @@ func (session *TCPSession) readMsgFromWebSocket() (PackInf, error) {
 		GetTCPServerQos().AddReadPacket(pack.GetPackLen())
 	}
 	if err != nil {
-		netError("readMsgFromWebSocket error :" + err.Error())
+		log.Error("readMsgFromWebSocket error :" + err.Error())
 	}
 	return pack, err
 
@@ -290,10 +291,10 @@ func (session *TCPSession) Close() {
 	//TODO
 	if atomic.CompareAndSwapInt32(&session.closeFlag, 0, 1) {
 		if session.isWebSocket {
-			netDebug("websocket session closed")
+			log.Debug("websocket session closed")
 			session.wsConn.Close()
 		} else {
-			netDebug("tcp session closed")
+			log.Debug("tcp session closed")
 			session.conn.Close()
 		}
 		//	atomic.StoreInt32(&session.closeFlag, 1)
@@ -321,10 +322,10 @@ func (session *TCPSession) Close() {
 func (session *TCPSession) ForceClose() {
 	if atomic.CompareAndSwapInt32(&session.closeFlag, 0, 1) {
 		if session.isWebSocket {
-			netDebug("websocket session closed")
+			log.Debug("websocket session closed")
 			session.wsConn.Close()
 		} else {
-			netDebug("tcp session closed")
+			log.Debug("tcp session closed")
 			session.conn.Close()
 		}
 		//fmt.Println("force id = %d", session.id)
@@ -341,15 +342,14 @@ func (session *TCPSession) writeMsgLoop() {
 		case msg, ok := <-session.sendChan:
 
 			if !ok {
-				netError("session send channel error ")
+				log.Error("session send channel error ")
 				return
 			}
 			//fmt.Println("write msg")
 			wLen, err := session.codec.SendMsg(msg)
 			FreePack(msg)
 			if err != nil {
-				netError("session codec write error: %v", err)
-
+				log.Error("session codec write error: %v", err)
 				session.Close()
 				return
 			}
@@ -393,7 +393,7 @@ func (session *TCPSession) readMsgLoop() {
 		}
 		msg, err := session.codec.ReceiveMsg()
 		if err != nil {
-			netError("readMsgLoop read error :" + err.Error())
+			log.Error("readMsgLoop read error :" + err.Error())
 			session.Close()
 			return
 		}

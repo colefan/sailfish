@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/colefan/sailfish/gate/gatemsg"
+	"github.com/colefan/sailfish/log"
 	"github.com/colefan/sailfish/network"
 	"github.com/colefan/sailfish/network/codec"
 )
@@ -22,7 +23,7 @@ func NewProxyInnerHandler(s *Gate) *ProxyInnerHandler {
 
 // SessionOpen session
 func (h *ProxyInnerHandler) SessionOpen(session *network.TCPSession) {
-	gLog.Debug("proxy server session opened, session_id = %d", session.ID())
+	log.Debugf("proxy server session opened, session_id = %d", session.ID())
 	proxyNode := NewProxyServerNode()
 	proxyNode.Session = session
 	proxyNode.SetStatus(ProxyNodeStatusInit)
@@ -32,7 +33,7 @@ func (h *ProxyInnerHandler) SessionOpen(session *network.TCPSession) {
 
 // SessionClose proxy server node closed
 func (h *ProxyInnerHandler) SessionClose(session *network.TCPSession) {
-	gLog.Debug("proxy server session closed, session_id = %d,status = %d", session.ID(), session.Status())
+	log.Debugf("proxy server session closed, session_id = %d,status = %d", session.ID(), session.Status())
 
 }
 
@@ -45,7 +46,7 @@ func (h *ProxyInnerHandler) HandleMsg(pack network.PackInf) {
 	case int32(gatemsg.MsgTypeGateInnerNode_ServerBeatReq):
 		h.HandleHeatBeatReq(pack)
 	default:
-		h.HandleMsg(pack)
+		h.ForwordToClient(pack)
 	}
 
 }
@@ -61,7 +62,7 @@ func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
 		clientSession = GetClientSessionMntInst().FindByUID(uid)
 	}
 	if clientSession == nil {
-		gLog.Error("client session is nil forword to client")
+		log.Error("client session is nil forword to client")
 		network.FreePack(pack)
 		return
 	}
@@ -72,7 +73,7 @@ func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
 func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 	var reqMsg gatemsg.RegServerReq
 	if err := codec.ProtobufDecoder(pack, &reqMsg); err != nil {
-		gLog.Error("RegServerReq decode failed:", err)
+		log.Error("RegServerReq decode failed:", err)
 		network.FreePack(pack)
 		return
 	}
@@ -88,7 +89,7 @@ func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 			proxyNode.Session = pack.GetTCPSession()
 			proxyNode.SetStatus(ProxyNodeStatusNormal)
 		} else {
-			gLog.Error("RegServerReq repeated,server_id = %d, status = %d", reqMsg.ServerId, proxyNode.GetStatus())
+			log.Errorf("RegServerReq repeated,server_id = %d, status = %d", reqMsg.ServerId, proxyNode.GetStatus())
 			network.FreePack(pack)
 			return
 		}

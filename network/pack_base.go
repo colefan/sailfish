@@ -19,4 +19,5 @@ type PackInf interface {
 	GetPackLen() int
 	GetData() []byte
 	SetData([]byte)
+	SetTargetType(byte)
 }

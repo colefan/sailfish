@@ -3,6 +3,7 @@ package gate
 import (
 	"sync"
 
+	"github.com/colefan/sailfish/log"
 	"github.com/colefan/sailfish/network"
 )
 
@@ -40,7 +41,7 @@ func (mgr *ServerSessionMgr) AddSession(session *ServerSession) {
 	mgr.Lock()
 	defer mgr.Unlock()
 	if _, ok := mgr.sessionMap[id]; ok {
-		gLog.Warn("session has exits.")
+		log.Warn("session has exits.")
 	}
 	mgr.sessionMap[id] = session
 

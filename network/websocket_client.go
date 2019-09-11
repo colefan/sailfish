@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/colefan/sailfish/log"
 	"github.com/gorilla/websocket"
 )
 
@@ -31,15 +32,15 @@ func newWebSocketClient(network, address string, p Protocol, sendChanSize int, m
 		u = url.URL{Scheme: "wss", Host: address, Path: path}
 	}
 
-	netInfo("connecting to %s", u.String())
+	log.Infof("connecting to %s", u.String())
 	ws, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		netError("websocket client dail error :%v", err)
+		log.Errorf("websocket client dail error :%v", err)
 		return nil, err
 	}
 	codec, err := p.NewWsSocketCodec(ws)
 	if err != nil {
-		netError("websocket client new codec error :%v", err)
+		log.Errorf("websocket client new codec error :%v", err)
 		ws.Close()
 		return nil, err
 	}

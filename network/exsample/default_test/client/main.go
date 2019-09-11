@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/colefan/logg"
 	"github.com/colefan/sailfish/console"
 	"github.com/colefan/sailfish/network"
 	"github.com/colefan/sailfish/network/codec"
@@ -14,17 +13,12 @@ import (
 
 func main() {
 
-	log := logg.NewLogger(1024)
-	log.SetAppender("console", `{}`)
-	log.Async()
-
 	for i := 0; i < 2000; i++ {
 
 		protocol := codec.NewDefaultProtocol(true, 4)
 		handler := &ClientHandler{}
 
 		client := network.NewTCPClient("192.168.20.127:8000", protocol)
-		client.SetLogger(log)
 		client.SetHandler(handler)
 		client.SetAutoReconnect(true)
 		client.SetSendChannelSize(1024)

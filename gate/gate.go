@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/colefan/config"
-	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/log"
 	"github.com/colefan/sailfish/network"
 )
 
@@ -31,7 +31,6 @@ type Gate struct {
 	serverHandler    network.SessionHandler //面向服务端的handler
 	clientProtocol   network.Protocol
 	serverProtocol   network.Protocol
-	logger           *logg.BaseLogger
 	conf             *config.IniConfig
 }
 
@@ -71,16 +70,6 @@ func (g *Gate) SetServerProtocol(p network.Protocol) {
 	g.serverProtocol = p
 }
 
-//SetLogger setter
-func (g *Gate) SetLogger(logger *logg.BaseLogger) {
-	g.logger = logger
-}
-
-//Logger getter
-func (g *Gate) Logger() *logg.BaseLogger {
-	return g.logger
-}
-
 //SetConfig setter
 func (g *Gate) SetConfig(cnf *config.IniConfig) {
 	g.conf = cnf
@@ -93,26 +82,18 @@ func (g *Gate) Config() *config.IniConfig {
 
 //Init init gate
 func (g *Gate) Init() error {
-	if g.logger == nil {
-		g.logger = logg.NewLogger(256)
-		g.logger.SetAppender("console", "")
-		g.logger.Async()
-	}
-	//日志设置
-	network.SetLogger(g.logger)
 
-	g.logger.Info("log starting...")
-	gLog = g.logger
+	log.Info("log starting...")
 	//读取配置
 	if g.conf == nil {
 		g.conf = config.NewIniConfig()
 	}
 	err := g.conf.Parse("./config/gate.ini")
 	if err != nil {
-		g.logger.Error("parse ./gate.ini error " + err.Error())
+		log.Error("parse ./gate.ini error " + err.Error())
 		return err
 	}
-	g.logger.Info("gate config parsing success.")
+	log.Info("gate config parsing success.")
 
 	g.clientHandler = new(ClientHandler)
 	g.serverHandler = new(ProxyInnerHandler)
@@ -125,13 +106,11 @@ func (g *Gate) Init() error {
 func (g *Gate) Run() error {
 	//启动服务
 	if !g.bInit {
-		//g.logger.Error("gate not inited.")
 		return errors.New("gate has not inited")
 	}
-	g.logger.Info("gate run ...")
+	log.Info("gate run ...")
 
 	if g.clientHandler == nil || g.serverHandler == nil {
-		//g.logger.Error("gate client handler or server handler not registed")
 		return errors.New("gate client handler or server handler not registed")
 	}
 	//g.logger.Info("%v", g.clientProtocol)
@@ -141,8 +120,8 @@ func (g *Gate) Run() error {
 
 	}
 	var err error
-	gLog.Info(g.conf.String("serverListner"))
-	g.proxyServer = network.NewTCPServer(g.conf.String("serverListner"), network.MsgHandleModeHandler, g.serverProtocol)
+	log.Info("proxy listener:" + g.conf.String("serverListener"))
+	g.proxyServer = network.NewTCPServer(g.conf.String("serverListener"), network.MsgHandleModeHandler, g.serverProtocol)
 	g.proxyServer.SetSendChannelSize(10240)
 	g.proxyServer.SetSessionHandler(g.serverHandler)
 
@@ -162,9 +141,11 @@ func (g *Gate) Run() error {
 		err = errors.New("unknow client network type:" + clientServerNetworkType)
 	}
 	if err != nil {
-		g.logger.Error("clientListener create error " + err.Error())
+		log.Error("clientListener create error " + err.Error())
 		return err
 	}
+	log.Info("client listener:" + g.conf.String("clientListener"))
+
 	g.clientServer.SetSendChannelSize(256)
 	g.clientServer.SetSessionHandler(g.clientHandler)
 	g.clientServer.SetCheckPerSecond(true)
@@ -189,29 +170,31 @@ func (g *Gate) Daemon() {
 	for {
 		select {
 		case s := <-signalChan:
-			if s == os.Kill {
+			fmt.Printf("receive sigal:%v", s)
+			if s == os.Kill || s == os.Interrupt {
 				g.ShutDown()
+				return
 			}
 		}
 
 	}
 
-	fmt.Println("exit")
+	log.Info("system quit")
 	//	select {}
 }
 
 //ShutDown shutdown gate server
 func (g *Gate) ShutDown() {
-	fmt.Println("shutdown route server")
+	log.Info("shutdown route server")
 	if g.proxyServer != nil {
 		g.proxyServer.Stop()
 	}
-	fmt.Println("shutdown client server ")
+	log.Info("shutdown client server ")
 
 	if g.clientServer != nil {
 		g.clientServer.Stop()
 	}
-	fmt.Println("finish")
+	log.Info("finish")
 }
 
 // HandleMsgFunc handle msg func

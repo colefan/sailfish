@@ -6,7 +6,7 @@ import (
 
 	"time"
 
-	"github.com/colefan/logg"
+	"github.com/colefan/sailfish/log"
 )
 
 type MsgHandlerModeType int
@@ -18,7 +18,6 @@ const (
 
 //Server server class
 type Server struct {
-	log             *logg.BaseLogger
 	networkType     string
 	address         string
 	protocol        Protocol
@@ -31,6 +30,12 @@ type Server struct {
 	keyFilePath     string
 	agentHandler    SessionHandler
 	*TCPServer
+	checkPerSecond bool
+}
+
+// SetCheckPerSecond set
+func (s *Server) SetCheckPerSecond(b bool) {
+	s.checkPerSecond = b
 }
 
 // SetCrtFilePath set file path
@@ -73,11 +78,6 @@ func (s *Server) SetProtocol(p Protocol) {
 	s.protocol = p
 }
 
-//SetLogger setter
-func (s *Server) SetLogger(log *logg.BaseLogger) {
-	s.log = log
-}
-
 //SetNetworkType setter
 func (s *Server) SetNetworkType(network string) {
 	s.networkType = network
@@ -95,9 +95,6 @@ func (s *Server) SetSessionHandler(agentHandler SessionHandler) {
 
 //Init init server
 func (s *Server) init() error {
-	if s.log == nil {
-		return errors.New("log is nil")
-	}
 
 	if s.networkType != NetWorkTypeTCP && s.networkType != NetWorkTypeWS && s.networkType != NetWorkTypeWSS {
 		return errors.New("unkowned network type " + s.networkType)
@@ -147,16 +144,16 @@ func (s *Server) Run() error {
 	if err != nil {
 		return err
 	}
-
+	s.TCPServer.SetCheckPerSecond(s.checkPerSecond)
 	if s.bQos {
 		GetTCPServerQos().Stat()
 	}
 
 	if s.mode == MsgHandleModeHandler {
-		netDebug("modeHandler")
+		log.Debug("server run in modeHandler")
 		go s.TCPServer.Serve(s.handler)
 	} else {
-		netDebug("modeEvent")
+		log.Debug("server run in modeEvent")
 		go s.TCPServer.Serve(nil)
 		go s.eventLoop()
 	}

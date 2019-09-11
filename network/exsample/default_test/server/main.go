@@ -9,7 +9,6 @@ import (
 
 	"time"
 
-	"github.com/colefan/logg"
 	"github.com/colefan/sailfish/console"
 	"github.com/colefan/sailfish/network"
 	"github.com/colefan/sailfish/network/codec"
@@ -18,20 +17,12 @@ import (
 var msgHandler *MyHandler
 
 func main() {
-	go func() {
-
-	}()
-
-	log := logg.NewLogger(100)
-	log.SetAppender("console", `{}`)
-	log.Async()
 
 	protocol := codec.NewDefaultProtocol(true, 4)
 	// handler := network.NewDefaultSessionHandler()
 
 	s := network.NewTCPServer("0.0.0.0:8000", network.MsgHandleModeHandler, protocol)
 	s.SetSendChannelSize(10240)
-	s.SetLogger(log)
 	s.SetSessionHandler(msgHandler)
 	s.SetQos(true)
 

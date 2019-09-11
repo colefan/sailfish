@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/colefan/sailfish/gate"
+	"github.com/colefan/sailfish/log"
 )
 
 func main() {
@@ -13,8 +14,10 @@ func main() {
 		fmt.Println(err.Error())
 		return
 	}
-	g.Logger().Info("hello")
+	log.Info("hello")
 	g.Run()
 	g.Daemon()
+	g.ShutDown()
+	log.Close()
 	//time.Sleep(1 * time.Minute)
 }

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/colefan/sailfish/log"
 	"github.com/colefan/sailfish/network/codec"
 
 	"github.com/colefan/sailfish/gate/gatemsg"
@@ -30,7 +31,7 @@ func (h *ClientHandler) SessionOpen(session *network.TCPSession) {
 	} else {
 		userData.UserIP = remoteAddress
 	}
-	gLog.Debug("client session opened,session_id = %d,user_ip = %v", session.ID(), userData.UserIP)
+	log.Debugf("client session opened,session_id = %d,user_ip = %v", session.ID(), userData.UserIP)
 	session.SetUserData(userData)
 	GetClientSessionMntInst().AddSession(session)
 
@@ -38,7 +39,7 @@ func (h *ClientHandler) SessionOpen(session *network.TCPSession) {
 
 // SessionClose 关闭一个会话
 func (h *ClientHandler) SessionClose(session *network.TCPSession) {
-	gLog.Debug("client session closed, session_id = %d,status = %d ", session.ID(), session.Status())
+	log.Debugf("client session closed, session_id = %d,status = %d ", session.ID(), session.Status())
 	if session.Status() > 0 {
 		//通知相关的代理服务下线
 		if user, ok := session.UserData().(*ClientUserData); ok {
@@ -58,12 +59,14 @@ func (h *ClientHandler) SessionClose(session *network.TCPSession) {
 
 // HandleMsg 处理消息请求
 func (h *ClientHandler) HandleMsg(pack network.PackInf) {
+	log.Debugf("gate recv client cmd = 0x%0x", pack.GetCmd())
 	switch pack.GetCmd() {
 	case int32(gatemsg.MsgTypeGateClient_ClientHandShakeReq):
 		h.HandleClientShakeReq(pack)
 	case int32(gatemsg.MsgTypeGateClient_ClientBeatReq):
 		h.HandleClientBeatReq(pack)
 	default:
+		log.Debugf("forward to proxyNode = %d, cmd = 0x%0x", pack.GetTargetType(), pack.GetCmd())
 		h.ForwordToProxyNode(pack)
 	}
 
@@ -74,7 +77,7 @@ func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
 	var reqMsg gatemsg.ClientHandShakeReq
 	err := codec.ProtobufDecoder(pack, &reqMsg)
 	if err != nil {
-		gLog.Error("ClientHandShakeReq decode failed:", err)
+		log.Error("ClientHandShakeReq decode failed:", err)
 		ntpack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_UnmarshalFailed))
 		pack.GetTCPSession().WriteMsg(ntpack)
 		network.FreePack(pack)
@@ -127,20 +130,33 @@ func (h *ClientHandler) HandleClientBeatReq(pack network.PackInf) {
 func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 	session := pack.GetTCPSession()
 	if user, ok := session.UserData().(*ClientUserData); ok {
+		if user.Status < ClientStatusHandShaked {
+			errPack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_HandShakeFailed))
+			pack.GetTCPSession().WriteMsg(errPack)
+			network.FreePack(pack)
+			return
+		}
+
+		targetServer := int32(pack.GetTargetType())
 		if user.UID != 0 {
 			pack.SetUID(user.UID)
+			pack.SetTargetType(UIDTypeUser)
+		} else {
+			pack.SetTargetType(UIDTypeSession)
+			pack.SetUID(session.ID())
 		}
-		if node, ok2 := user.ProxyNodeList[int32(pack.GetTargetType())]; ok2 {
+		if node, ok2 := user.ProxyNodeList[targetServer]; ok2 {
 			// node.Session
 			if node.Session != nil {
 				node.Session.WriteMsg(pack)
 				return
 			}
 		} else {
-			tmpNode := GetProxyServerStoreInst().MatchProxyServer(int32(pack.GetTargetType()))
+			tmpNode := GetProxyServerStoreInst().MatchProxyServer(targetServer)
 			if tmpNode != nil {
 				user.ProxyNodeList[int32(pack.GetTargetType())] = tmpNode
 				if tmpNode.Session != nil {
+
 					tmpNode.Session.WriteMsg(pack)
 					return
 				}

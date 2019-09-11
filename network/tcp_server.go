@@ -4,6 +4,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/colefan/sailfish/log"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,7 +18,7 @@ func accept(listener net.Listener) (net.Conn, error) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			netError("listenr accept error %v", err)
+			log.Errorf("listenr accept error %v", err)
 			if ne, ok := err.(net.Error); ok && ne.Temporary() {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
@@ -130,21 +131,21 @@ func (s *TCPServer) Serve(handler HandleFunc) {
 }
 
 func (s *TCPServer) serveSocket(handler HandleFunc) {
-	netInfo("TcpServer Listen " + s.listener.Addr().String())
+	log.Info("TcpServer Listen " + s.listener.Addr().String())
 
 	for {
 		//	fmt.Println("wait next connection ")
 		conn, err := accept(s.listener)
 		//conn.SetDeadline
-		netInfo(">>>>>>tcp server accept a new connection")
+		log.Info(">>>>>>tcp server accept a new connection")
 		if err != nil {
-			netError("tcp server accept conn error :" + err.Error())
+			log.Error("tcp server accept conn error :" + err.Error())
 			return
 		}
 
 		codec, err := s.protocol.NewSocketCodec(conn)
 		if err != nil {
-			netError("new socket codec error :" + err.Error())
+			log.Error("new socket codec error :" + err.Error())
 			conn.Close()
 			continue
 		}
@@ -176,18 +177,18 @@ func (s *TCPServer) afterSessionClosed(session *TCPSession) {
 //Stop stop and distroy server
 func (s *TCPServer) Stop() {
 	if s.listener != nil {
-		netInfo("before listener close")
+		log.Info("before listener close")
 		s.listener.Close()
-		netInfo("after listener closed")
+		log.Info("after listener closed")
 		if s.sessMgr != nil {
-			netInfo("before session manager closed")
+			log.Info("before session manager closed")
 			s.sessMgr.Dispose()
-			netInfo("after session manager closed")
+			log.Info("after session manager closed")
 		}
 		if s.dispatcher != nil {
-			netInfo("before dispatcher closed")
+			log.Info("before dispatcher closed")
 			s.dispatcher.Dispose()
-			netInfo("after dispatcher closed")
+			log.Info("after dispatcher closed")
 		}
 	}
 

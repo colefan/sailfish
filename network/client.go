@@ -6,9 +6,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"time"
+	"github.com/colefan/sailfish/log"
 
-	"github.com/colefan/logg"
+	"time"
 )
 
 // const (
@@ -21,7 +21,6 @@ type Client struct {
 	networkType           string
 	address               string
 	mode                  MsgHandlerModeType
-	log                   *logg.BaseLogger
 	protocol              Protocol
 	sendChannelBufferSize int
 	dispatcher            PackDispatcherInf
@@ -69,11 +68,6 @@ func (c *Client) SetSendChannelSize(size int) {
 	c.sendChannelBufferSize = size
 }
 
-//SetLogger setter
-func (c *Client) SetLogger(log *logg.BaseLogger) {
-	c.log = log
-}
-
 //SetNetworkType setter
 func (c *Client) SetNetworkType(networkType string) {
 	c.networkType = networkType
@@ -103,9 +97,6 @@ func (c *Client) WriteMsg(pack PackInf) error {
 func (c *Client) init() error {
 	c.clientClosed = 0
 	//c.closeChannel = make(chan string)
-	if c.log == nil {
-		return errors.New("log is nil")
-	}
 	if c.networkType != NetWorkTypeTCP && c.networkType != NetWorkTypeWS && c.networkType != NetWorkTypeWSS {
 		return errors.New("unknow network tyep for client : " + c.networkType)
 	}
@@ -165,15 +156,15 @@ func (c *Client) closeCallback(session *TCPSession) {
 
 	if c.autoReconnect {
 		if c.mode == MsgHandleModeEvent {
-			netInfo("reconnect swap")
+			log.Info("reconnect swap")
 			atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
-			netInfo("reconnect add")
+			log.Info("reconnect add")
 			c.reconnectWait.Add(1)
 			closePack := GetPooledPack() //new(BasePack)
 			closePack.SetCmd(9999)
 			closePack.SetMagic(MagicNumberClientInner)
 			c.dispatcher.PostData(closePack, nil)
-			netInfo("reconnect wait")
+			log.Info("reconnect wait")
 			c.reconnectWait.Wait()
 			go c.Reconnect()
 		} else {
@@ -192,7 +183,7 @@ func (c *Client) ShutDown() {
 func (c *Client) Reconnect() {
 	count := time.Duration(1)
 	for {
-		netInfo("reconnected count = %d ", count)
+		log.Info("reconnected count = %d ", count)
 		time.Sleep(time.Second * 5 * count)
 		err := c.Run()
 		if err == nil {
