@@ -34,7 +34,7 @@ func (s *ProxyServerStore) MatchProxyServer(sType int32) *ProxyServerNode {
 		var selBusy bool
 		for key, val := range v {
 			if selID == 0 {
-				if val.GetStatus() == 0 {
+				if val.GetStatus() == ProxyNodeStatusNormal {
 					selID = key
 					selServer = val
 					selBusy = val.IsBusyLimit()

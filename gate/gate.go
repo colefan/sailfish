@@ -146,8 +146,8 @@ func (g *Gate) Run() error {
 	}
 	log.Info("client listener:" + g.conf.String("clientListener"))
 
-	g.clientServer.SetSendChannelSize(256)
 	g.clientServer.SetSessionHandler(g.clientHandler)
+	g.clientServer.SetSendChannelSize(256)
 	g.clientServer.SetCheckPerSecond(true)
 
 	if err := g.clientServer.Run(); err != nil {

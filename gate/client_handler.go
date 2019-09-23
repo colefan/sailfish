@@ -94,6 +94,15 @@ func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
 			respMsg.ServerTimeSecond = int32(time.Now().Unix())
 			respMsg.Token = ""
 			respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateClient_ClientHandShakeResp), &respMsg)
+			// just for debug ~
+			// message := respPack.(*network.Message)
+			// message.SetMagic(0x08)
+			// message.SetTargetType(0x01)
+			// message.SetUID(1111)
+			// message.Head.CompressType = 2
+			// message.Head.Version = 2
+			// message.Head.CheckCode = 88
+			// ~
 			pack.GetTCPSession().WriteMsg(respPack)
 			network.FreePack(pack)
 			return
@@ -138,10 +147,19 @@ func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 		}
 
 		targetServer := int32(pack.GetTargetType())
+		if pack.GetUID() != 0 {
+			if user.UID == 0 {
+				GetClientSessionMntInst().AddSessionByUID(pack.GetUID(), pack.GetTCPSession())
+			}
+			user.UID = pack.GetUID()
+		}
+
 		if user.UID != 0 {
 			pack.SetUID(user.UID)
+			// pack.SetMagic(0x08 + 0x01)
 			pack.SetTargetType(UIDTypeUser)
 		} else {
+			// pack.SetMagic(0x08)
 			pack.SetTargetType(UIDTypeSession)
 			pack.SetUID(session.ID())
 		}

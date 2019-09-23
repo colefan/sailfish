@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/colefan/logg"
 )
@@ -62,10 +63,14 @@ func (l *DefaultLogger) Errorf(format string, v ...interface{}) {
 
 func (l *DefaultLogger) Fatal(v ...interface{}) {
 	l.BaseLogger.Fatal(defaultLoggerMsgHandle(v...))
+	l.BaseLogger.Close()
+	os.Exit(1)
 }
 
 func (l *DefaultLogger) Fatalf(format string, v ...interface{}) {
 	l.BaseLogger.Fatal(defaultLoggerMsgHandle(v...))
+	l.BaseLogger.Close()
+	os.Exit(1)
 }
 func (l *DefaultLogger) Close() {
 	l.BaseLogger.Close()

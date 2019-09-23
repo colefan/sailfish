@@ -24,7 +24,7 @@ func NewWSServer(address string, msgHandlerMode MsgHandlerModeType, msgProtocol 
 	s.networkType = NetWorkTypeWS
 	s.mode = msgHandlerMode
 	s.protocol = msgProtocol
-	return nil
+	return s
 }
 
 // NewWSSServer 新建一个安全websocket
@@ -34,5 +34,5 @@ func NewWSSServer(address string, msgHandlerMode MsgHandlerModeType, msgProtocol
 	s.networkType = NetWorkTypeWSS
 	s.mode = msgHandlerMode
 	s.protocol = msgProtocol
-	return nil
+	return s
 }

@@ -167,13 +167,23 @@ func (c *DefaultWebsocketCodec) ReceiveMsg() (network.PackInf, error) {
 	if len(p) < c.p.headWord {
 		return nil, ErrFixHeadSizeIsNotEnough
 	}
+	// fmt.Printf("recv p = %v,len(p) = %v \n", p, len(p))
 	// realLen := len(p) - c.p.headWord
 	copy(c.headBuf, p[0:c.p.headWord])
 	nLen := FixHeadDecoder(c.p.useLittleEndian, c.p.headWord, c.headBuf)
+
+	// fmt.Printf(" recv p = %v,nLen = %v\n", p, nLen)
+
+	if nLen < network.HeaderSize {
+		return nil, errors.New("head word size is less than HeaderSize")
+	}
+
 	if nLen > c.p.maxReadSize {
 		return nil, ErrFixHeadTooLargePacket
 	}
 	p = p[c.p.headWord:]
+	// fmt.Printf("cut headword  recv p = %v,nLen = %v\n", p, nLen)
+
 	if len(p) < nLen {
 		return nil, errors.New("msg data is less than protocol length")
 	}
@@ -181,8 +191,9 @@ func (c *DefaultWebsocketCodec) ReceiveMsg() (network.PackInf, error) {
 	if len(p) < network.HeaderSize {
 		return nil, errors.New("msg data is less than protocol msg headSize")
 	}
-	p = p[0:nLen]
 
+	p = p[0:nLen]
+	// fmt.Printf("after p = %v,nLen = %d \n", p, nLen)
 	pack := network.GetPooledPack()
 	msg := pack.(*network.Message)
 	msg.Head.Magic = p[0]
@@ -240,6 +251,7 @@ func (c *DefaultWebsocketCodec) SendMsg(msg network.PackInf) (int, error) {
 	if bodyData != nil {
 		encodedData = append(encodedData, bodyData...)
 	}
+	// fmt.Printf("cmd_id = 0x%0x, data = %v\n", msg.GetCmd(), encodedData)
 	if err := c.wsConn.WriteMessage(websocket.BinaryMessage, encodedData); err != nil {
 		return 0, err
 	} else {

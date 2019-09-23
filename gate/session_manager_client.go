@@ -33,6 +33,18 @@ func (mnt *ClientSessionMnt) FindBySessionID(id uint64) *network.TCPSession {
 	return nil
 }
 
+// AddSessionByUID ~
+func (mnt *ClientSessionMnt) AddSessionByUID(uid uint64, session *network.TCPSession) {
+	groupID := uid % userSessionGroup
+	smap := &mnt.userSessionMap[groupID]
+	smap.Lock()
+	defer smap.Unlock()
+	if smap.sessions == nil {
+		smap.sessions = make(map[uint64]*network.TCPSession)
+	}
+	smap.sessions[uid] = session
+}
+
 // FindByUID find by uid
 func (mnt *ClientSessionMnt) FindByUID(id uint64) *network.TCPSession {
 	groupID := id % userSessionGroup

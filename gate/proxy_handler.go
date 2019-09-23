@@ -34,6 +34,13 @@ func (h *ProxyInnerHandler) SessionOpen(session *network.TCPSession) {
 // SessionClose proxy server node closed
 func (h *ProxyInnerHandler) SessionClose(session *network.TCPSession) {
 	log.Debugf("proxy server session closed, session_id = %d,status = %d", session.ID(), session.Status())
+	sessionData := session.UserData().(*ProxyServerNode)
+	if sessionData != nil {
+		proxyNode := GetProxyServerStoreInst().Find(sessionData.ServerID, sessionData.ServerType)
+		if proxyNode != nil {
+			proxyNode.SetStatus(ProxyNodeStatusOffline)
+		}
+	}
 
 }
 
@@ -83,6 +90,15 @@ func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 		return
 	}
 
+	sessionData.ServerID = reqMsg.ServerId
+	sessionData.ServerType = reqMsg.ServerType
+	sessionData.MaxUsers = int(reqMsg.MaxLimit)
+	sessionData.IP = reqMsg.Ip
+	sessionData.Port = int(reqMsg.Port)
+	sessionData.Load = 80
+	sessionData.Session = pack.GetTCPSession()
+	sessionData.SetStatus(ProxyNodeStatusNormal)
+
 	proxyNode := GetProxyServerStoreInst().Find(reqMsg.ServerId, reqMsg.ServerType)
 	if proxyNode != nil {
 		if proxyNode.GetStatus() != ProxyNodeStatusNormal {
@@ -94,13 +110,8 @@ func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 			return
 		}
 	} else {
-		sessionData.ServerID = reqMsg.ServerId
-		sessionData.ServerType = reqMsg.ServerType
-		sessionData.MaxUsers = int(reqMsg.MaxLimit)
-		sessionData.IP = reqMsg.Ip
-		sessionData.Port = int(reqMsg.Port)
-		sessionData.Load = 80
 		sessionData.Session = pack.GetTCPSession()
+		sessionData.SetStatus(ProxyNodeStatusNormal)
 		GetProxyServerStoreInst().RegisterProxyNode(sessionData)
 	}
 
