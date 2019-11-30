@@ -158,6 +158,8 @@ func (g *Gate) Run() error {
 		return err
 	}
 
+	GetBroadCast().Run()
+
 	return nil
 
 }

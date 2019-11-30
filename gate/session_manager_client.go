@@ -82,6 +82,31 @@ func (mnt *ClientSessionMnt) DelSession(session *network.TCPSession) {
 
 }
 
+func (mnt *ClientSessionMnt) GetGroupSize() int {
+	return userSessionGroup
+}
+
+func (mnt *ClientSessionMnt) CopyUserSessions(groupId int) []*network.TCPSession {
+	if groupId <= 0 || groupId >= userSessionGroup {
+		return nil
+	}
+
+	smap := &mnt.userSessionMap[groupId]
+	smap.RLock()
+	defer smap.RUnlock()
+
+	if smap.sessions == nil {
+		return nil
+	}
+
+	sessions := make([]*network.TCPSession, 0, len(smap.sessions))
+	for _, v := range smap.sessions {
+		sessions = append(sessions, v)
+	}
+
+	return sessions
+}
+
 var clientSessionMntInst *ClientSessionMnt
 
 // GetClientSessionMntInst get instance

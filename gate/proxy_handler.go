@@ -76,6 +76,10 @@ func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
 	clientSession.WriteMsg(pack)
 }
 
+func (h *ProxyInnerHandler) BroadCastToClient(pack network.PackInf) {
+	GetBroadCast().postMsg(pack)
+}
+
 // HandleRegisterReq handle proxy req
 func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 	var reqMsg gatemsg.RegServerReq
