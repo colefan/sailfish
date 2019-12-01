@@ -22,6 +22,7 @@ const (
 	CMD_DEL      = "DEL"
 	CMD_HDEL     = "HDEL"
 	CMD_SMEMBERS = "SMEMBERS"
+	CMD_HGETALL  = "HGETALL"
 )
 
 var ErrorRedisConnIsNull = errors.New("redis conn is nil")
@@ -306,4 +307,19 @@ func (rc *RedisCache) HashDelField(key string, field string) {
 	if err != nil {
 		log.Errorf("Hash Del field failed ,key = %v,field = %v,error = %v", key, field, err)
 	}
+}
+
+func (rc *RedisCache) HashGetAll(key string) map[string]string {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil ")
+		return nil
+	}
+	defer conn.Close()
+	strMap, err := redis.StringMap(conn.Do(CMD_HGETALL, key))
+	if err != nil {
+		log.Errorf("Hash GetALL failed, key = %v, error = %v", key, err)
+		return nil
+	}
+	return strMap
 }
