@@ -219,7 +219,7 @@ func (rc *RedisCache) Del(key string) {
 	}
 }
 
-func (rc *RedisCache) Increment(key string, incrAmount int) int {
+func (rc *RedisCache) Increment(key string, incrAmount int, expireSecond int) int {
 	conn := rc.getConn()
 	if conn == nil {
 		log.Errorf("conn is nil ")
@@ -229,6 +229,9 @@ func (rc *RedisCache) Increment(key string, incrAmount int) int {
 	reply, err := redis.Int(conn.Do(CMD_INCRBY, key, incrAmount))
 	if err != nil {
 		log.Errorf("key = %v, incrAmount = %d,Increment error :%v", key, incrAmount, err)
+	}
+	if expireSecond > 0 {
+		conn.Do(CMD_EXPIRE, key, expireSecond)
 	}
 	return reply
 }
