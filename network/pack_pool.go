@@ -11,15 +11,16 @@ var packPool = sync.Pool{
 
 // GetPooledPack get pooled pack
 func GetPooledPack() PackInf {
-	return packPool.Get().(*Message)
+	return NewMessage()
+	//return packPool.Get().(*Message)
 }
 
 // FreePack free package data
 func FreePack(pack PackInf) {
-	if pack != nil {
-		pack.Reset()
-		packPool.Put(pack)
-	}
+	// if pack != nil {
+	// 	pack.Reset()
+	// 	packPool.Put(pack)
+	// }
 }
 
 func GetPackPool() *sync.Pool {
