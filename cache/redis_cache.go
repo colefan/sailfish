@@ -8,21 +8,22 @@ import (
 )
 
 const (
-	CMD_EXISTS   = "EXISTS"
-	CMD_SET      = "SET"
-	CMD_HGET     = "HGET"
-	CMD_GET      = "GET"
-	CMD_EXPIRE   = "EXPIRE"
-	CMD_HSET     = "HSET"
-	CMD_HMSET    = "HMSET"
-	CMD_INCRBY   = "INCRBY"
-	CMD_SADD     = "SADD"
-	CMD_SREM     = "SREM"
-	CMD_HINCRBY  = "HINCRBY"
-	CMD_DEL      = "DEL"
-	CMD_HDEL     = "HDEL"
-	CMD_SMEMBERS = "SMEMBERS"
-	CMD_HGETALL  = "HGETALL"
+	CMD_EXISTS    = "EXISTS"
+	CMD_SET       = "SET"
+	CMD_HGET      = "HGET"
+	CMD_GET       = "GET"
+	CMD_EXPIRE    = "EXPIRE"
+	CMD_HSET      = "HSET"
+	CMD_HMSET     = "HMSET"
+	CMD_INCRBY    = "INCRBY"
+	CMD_SADD      = "SADD"
+	CMD_SREM      = "SREM"
+	CMD_HINCRBY   = "HINCRBY"
+	CMD_DEL       = "DEL"
+	CMD_HDEL      = "HDEL"
+	CMD_SMEMBERS  = "SMEMBERS"
+	CMD_HGETALL   = "HGETALL"
+	CMD_SISMEMBER = "SISMEMBER"
 )
 
 var ErrorRedisConnIsNull = errors.New("redis conn is nil")
@@ -144,7 +145,9 @@ func (rc *RedisCache) Get(key string) string {
 	defer conn.Close()
 	r, err := redis.String(conn.Do(CMD_GET, key))
 	if err != nil {
-		log.Errorf("redis.String get error :%v", err)
+		if err != redis.ErrNil {
+			log.Errorf("redis.String get error :%v", err)
+		}
 		return ""
 	} else {
 		return r
@@ -227,7 +230,7 @@ func (rc *RedisCache) Increment(key string, incrAmount int, expireSecond int) in
 	}
 	defer conn.Close()
 	reply, err := redis.Int(conn.Do(CMD_INCRBY, key, incrAmount))
-	if err != nil {
+	if err != nil && err != redis.ErrNil {
 		log.Errorf("key = %v, incrAmount = %d,Increment error :%v", key, incrAmount, err)
 	}
 	if expireSecond > 0 {
@@ -325,4 +328,25 @@ func (rc *RedisCache) HashGetAll(key string) map[string]string {
 		return nil
 	}
 	return strMap
+}
+
+func (rc *RedisCache) SetSIsMember(key, field string) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+	tmp, k := conn.Do(CMD_SISMEMBER, key, field)
+	log.Errorf(" tmp =  %v, k = %v ", tmp, k)
+	res, err := redis.Int(conn.Do(CMD_SISMEMBER, key, field))
+	if err != nil {
+		log.Errorf("set sismember failed, key = %v, error = %v ", key, err)
+		return false
+	}
+	log.Errorf(" res = %v err = %v ", res, err)
+	if res < 1 {
+		return true
+	}
+	return false
 }
