@@ -337,14 +337,16 @@ func (rc *RedisCache) SetSIsMember(key, field string) bool {
 		return false
 	}
 	defer conn.Close()
-	tmp, k := conn.Do(CMD_SISMEMBER, key, field)
-	log.Errorf(" tmp =  %v, k = %v ", tmp, k)
+	// tmp, k := conn.Do(CMD_SISMEMBER, key, field)
+	// log.Errorf(" tmp =  %v, k = %v ", tmp, k)
 	res, err := redis.Int(conn.Do(CMD_SISMEMBER, key, field))
 	if err != nil {
-		log.Errorf("set sismember failed, key = %v, error = %v ", key, err)
+		if err != redis.ErrNil {
+			log.Errorf("set sismember failed, key = %v, error = %v ", key, err)
+		}
 		return false
 	}
-	log.Errorf(" res = %v err = %v ", res, err)
+	// log.Errorf(" res = %v err = %v ", res, err)
 	if res < 1 {
 		return true
 	}
