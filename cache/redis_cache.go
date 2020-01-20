@@ -24,6 +24,9 @@ const (
 	CMD_SMEMBERS  = "SMEMBERS"
 	CMD_HGETALL   = "HGETALL"
 	CMD_SISMEMBER = "SISMEMBER"
+	CMD_ZADD      = "ZADD"
+	CMD_ZRANGE    = "ZRANGE"
+	CMD_ZREVRANGE = "ZREVRANGE"
 )
 
 var ErrorRedisConnIsNull = errors.New("redis conn is nil")
@@ -351,4 +354,56 @@ func (rc *RedisCache) SetSIsMember(key, field string) bool {
 		return true
 	}
 	return false
+}
+
+func (rc *RedisCache) PutSortedSet(key string, score float64, member interface{}) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+
+	_, err := conn.Do(CMD_ZADD, key, score, member)
+	if err != nil {
+		log.Errorf("PutSortedSet failed,error = %v", err)
+		return false
+	}
+	return true
+}
+
+func (rc *RedisCache) GetSortedSetRange(key string, start int, end int) []interface{} {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return nil
+	}
+	defer conn.Close()
+	values, err := redis.Values(conn.Do(CMD_ZRANGE, start, end))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("GetSortedSetRange failed, key = %d, start = %d,end = %d,error = %v", key, start, end, err)
+		}
+		return nil
+	}
+	return values
+}
+
+func (rc *RedisCache) GetSortedSetRevRange(key string, start int, end int) []interface{} {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return nil
+	}
+	defer conn.Close()
+
+	values, err := redis.Values(conn.Do(CMD_ZREVRANGE, key, start, end))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("GetSortedSetRevRange failed, key = %d, start = %d,end = %d,error = %v", key, start, end, err)
+		}
+		return nil
+	}
+	return values
+
 }
