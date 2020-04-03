@@ -2,9 +2,10 @@ package cache
 
 import (
 	"errors"
+	"time"
+
 	"github.com/colefan/sailfish/log"
 	"github.com/gomodule/redigo/redis"
-	"time"
 )
 
 const (
@@ -27,6 +28,9 @@ const (
 	CMD_ZADD      = "ZADD"
 	CMD_ZRANGE    = "ZRANGE"
 	CMD_ZREVRANGE = "ZREVRANGE"
+	CMD_LPUSH     = "LPUSH"
+	CMD_LRANGE    = "LRANGE"
+	CMD_LTRIM     = "LTRIM"
 )
 
 var ErrorRedisConnIsNull = errors.New("redis conn is nil")
@@ -406,4 +410,47 @@ func (rc *RedisCache) GetSortedSetRevRange(key string, start int, end int) []int
 	}
 	return values
 
+}
+
+// PushLeftList ~
+func (rc *RedisCache) PushLeftList(key, content string, maxLen int) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+	_, err := redis.Values(conn.Do(CMD_LPUSH, key, content))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("PushLeftList failed, key = %v, error = %v ", key, err)
+		}
+		return false
+	}
+	_, err = redis.Values(conn.Do(CMD_LTRIM, key, 0, maxLen))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+// GetLeftList ~
+func (rc *RedisCache) GetLeftList(key string, start, end int) (arr []string) {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return
+	}
+	defer conn.Close()
+	values, err := redis.Strings(conn.Do(CMD_LRANGE, key, start, end))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("GetLeftList failed, key = %v, error = %v ", key, err)
+		}
+		return
+	}
+	for _, v := range values {
+		arr = append(arr, v)
+	}
+	return
 }
