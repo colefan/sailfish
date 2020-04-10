@@ -39,20 +39,21 @@ func (h *ClientHandler) SessionOpen(session *network.TCPSession) {
 
 // SessionClose 关闭一个会话
 func (h *ClientHandler) SessionClose(session *network.TCPSession) {
-	log.Debugf("client session closed, session_id = %d,status = %d ", session.ID(), session.Status())
-	if session.Status() > 0 {
-		//通知相关的代理服务下线
-		if user, ok := session.UserData().(*ClientUserData); ok {
-			if user.ProxyNodeList != nil {
-				for k, v := range user.ProxyNodeList {
-					if v != nil {
-						notifyClientCloseReq(k, v, user)
-					}
+	log.Debugf("client session closed, session_id = %d ", session.ID(), session.Status())
+	// if session.Status() > 0 {
+	//通知相关的代理服务下线
+	if user, ok := session.UserData().(*ClientUserData); ok {
+		if user.ProxyNodeList != nil && user.Status > 0 {
+			log.Debugf("client session closed, session_id = %d ,user.Status = %d", session.ID(), user.Status)
+			for k, v := range user.ProxyNodeList {
+				if v != nil {
+					notifyClientCloseReq(k, v, user)
 				}
 			}
-
 		}
+
 	}
+	// }
 
 	GetClientSessionMntInst().DelSession(session)
 }
@@ -193,6 +194,7 @@ func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode, user *C
 	if serverInfo == nil {
 		return
 	}
+
 	pack := network.GetPooledPack()
 	msg := pack.(*network.Message)
 	msg.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
@@ -201,6 +203,7 @@ func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode, user *C
 		if err != nil {
 			tmpServerInfo := GetProxyServerStoreInst().Find(serverInfo.ServerID, serverInfo.ServerType)
 			if tmpServerInfo != nil && tmpServerInfo.Session != nil {
+				log.Debugf("notifyClientCloseReq sever_id = %d,user_id = %d", tmpServerInfo.ServerID, user.UID)
 				pack2 := network.GetPooledPack()
 				if user.UID != 0 {
 					pack.SetUID(user.UID)
