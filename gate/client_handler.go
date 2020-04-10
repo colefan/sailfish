@@ -196,26 +196,36 @@ func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode, user *C
 	}
 
 	pack := network.GetPooledPack()
+
 	msg := pack.(*network.Message)
 	msg.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
 	if serverInfo.Session != nil {
+		if user.UID != 0 {
+			pack.SetUID(user.UID)
+			// pack.SetMagic(0x08 + 0x01)
+			pack.SetTargetType(UIDTypeUser)
+		} else {
+			// pack.SetMagic(0x08)
+			pack.SetTargetType(UIDTypeSession)
+			pack.SetUID(serverInfo.Session.ID())
+		}
+		log.Debugf("notifyClientCloseReq sever_id = %d,user_id = %d", serverInfo.ServerID, user.UID)
 		err := serverInfo.Session.WriteMsg(pack)
 		if err != nil {
 			tmpServerInfo := GetProxyServerStoreInst().Find(serverInfo.ServerID, serverInfo.ServerType)
 			if tmpServerInfo != nil && tmpServerInfo.Session != nil {
 				log.Debugf("notifyClientCloseReq sever_id = %d,user_id = %d", tmpServerInfo.ServerID, user.UID)
 				pack2 := network.GetPooledPack()
+				pack2.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
 				if user.UID != 0 {
-					pack.SetUID(user.UID)
+					pack2.SetUID(user.UID)
 					// pack.SetMagic(0x08 + 0x01)
-					pack.SetTargetType(UIDTypeUser)
+					pack2.SetTargetType(UIDTypeUser)
 				} else {
 					// pack.SetMagic(0x08)
-					pack.SetTargetType(UIDTypeSession)
-					pack.SetUID(tmpServerInfo.Session.ID())
+					pack2.SetTargetType(UIDTypeSession)
+					pack2.SetUID(tmpServerInfo.Session.ID())
 				}
-
-				pack2.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
 				tmpServerInfo.Session.WriteMsg(pack2)
 			}
 		}
