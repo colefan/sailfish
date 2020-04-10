@@ -46,7 +46,7 @@ func (h *ClientHandler) SessionClose(session *network.TCPSession) {
 			if user.ProxyNodeList != nil {
 				for k, v := range user.ProxyNodeList {
 					if v != nil {
-						notifyClientCloseReq(k, v)
+						notifyClientCloseReq(k, v, user)
 					}
 				}
 			}
@@ -189,7 +189,7 @@ func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 
 }
 
-func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode) {
+func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode, user *ClientUserData) {
 	if serverInfo == nil {
 		return
 	}
@@ -202,6 +202,16 @@ func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode) {
 			tmpServerInfo := GetProxyServerStoreInst().Find(serverInfo.ServerID, serverInfo.ServerType)
 			if tmpServerInfo != nil && tmpServerInfo.Session != nil {
 				pack2 := network.GetPooledPack()
+				if user.UID != 0 {
+					pack.SetUID(user.UID)
+					// pack.SetMagic(0x08 + 0x01)
+					pack.SetTargetType(UIDTypeUser)
+				} else {
+					// pack.SetMagic(0x08)
+					pack.SetTargetType(UIDTypeSession)
+					pack.SetUID(tmpServerInfo.Session.ID())
+				}
+
 				pack2.SetCmd(int32(gatemsg.MsgTypeGateInnerNode_ClientCloseReq))
 				tmpServerInfo.Session.WriteMsg(pack2)
 			}
