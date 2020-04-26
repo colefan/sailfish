@@ -12,17 +12,19 @@ type ProxyNodeTypeMapper map[int32]*ProxyServerNode
 
 //ClientUserData client data
 type ClientUserData struct {
-	ChannleID     string
-	Version       string
-	UID           uint64
-	Status        int
-	ClientType    string
-	UserIP        string
-	Account       string
-	AccountType   int
-	Token         string
-	ClientAuth    string
-	LastBeatTime  int64
+	ChannleID                string
+	Version                  string
+	UID                      uint64
+	Status                   int
+	ClientType               string
+	UserIP                   string
+	Account                  string
+	AccountType              int
+	Token                    string
+	ClientAuth               string
+	LastBeatTime             int64
+	KickOffWhenRepeatedLogin bool
+
 	ProxyNodeList ProxyNodeTypeMapper
 }
 

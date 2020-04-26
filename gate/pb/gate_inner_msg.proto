@@ -11,6 +11,7 @@ message MsgTypeGateInnerNode{
             ServerBeatResp      = 0xEF14;   //服务器心跳响应
             ClientCloseReq      = 0xEF15;   //客户端下线
             ClientCloseResp     = 0xEF16;   //
+            KickOffClientNt     = 0xEF17;   //将指定客户端踢下线
             IdEnd               = 0xEF1F;    //网关消息结束ID
     }
 }
@@ -42,5 +43,17 @@ message ServerBeatResp
 {
     int32   req_time       = 1;
     int32   reply_time     = 2;
+}
+
+
+message KickOffClientNt{
+    uint64  session_id  = 1;
+    uint64  uid         = 2;
+    bool repeated_login = 3;
+}
+
+message ClientCloseReq{
+    uint64 session_id = 1;
+    uint64  uid       = 2;
 }
 

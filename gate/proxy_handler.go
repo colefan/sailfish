@@ -52,14 +52,16 @@ func (h *ProxyInnerHandler) HandleMsg(pack network.PackInf) {
 		h.HandleRegisterReq(pack)
 	case int32(gatemsg.MsgTypeGateInnerNode_ServerBeatReq):
 		h.HandleHeatBeatReq(pack)
+	case int32(gatemsg.MsgTypeGateInnerNode_KickOffClientNt):
+		h.HandleKickOffClient(pack)
 	default:
 		h.ForwordToClient(pack)
 	}
 
 }
 
-// ForwordToClient forword to client
-func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
+// HandleKickOffClient
+func (h *ProxyInnerHandler) HandleKickOffClient(pack network.PackInf) {
 	uid := pack.GetUID()
 	uidType := pack.GetTargetType()
 	var clientSession *network.TCPSession
@@ -73,7 +75,42 @@ func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
 		network.FreePack(pack)
 		return
 	}
+	var reqMsg gatemsg.KickOffClientNt
+	if err := codec.ProtobufDecoder(pack, &reqMsg); err != nil {
+		log.Error("KickOffClientNt decode failed:", err)
+	} else {
+		if reqMsg.RepeatedLogin {
+			if userData, ok := clientSession.UserData().(*ClientUserData); ok {
+				userData.KickOffWhenRepeatedLogin = true
+			}
+		}
+	}
+	log.Debugf("kick off session = %d,uid = %d, repeatedLogin = %v", reqMsg.SessionId, reqMsg.Uid, reqMsg.RepeatedLogin)
+	pack.SetMagic(0x58)
 	clientSession.WriteMsg(pack)
+	// clientSession.Close()
+}
+
+// ForwordToClient forword to client
+func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
+	uid := pack.GetUID()
+	uidType := pack.GetTargetType()
+	var clientSession *network.TCPSession
+	if uidType == UIDTypeSession {
+		clientSession = GetClientSessionMntInst().FindBySessionID(uid)
+	} else {
+		clientSession = GetClientSessionMntInst().FindByUID(uid)
+	}
+	if clientSession == nil {
+		log.Error("client session is nil forword to client,uid = %d,uidType = %d,cmd = 0x%x", uid, uidType, pack.GetCmd())
+		network.FreePack(pack)
+		return
+	}
+	if pack.GetCmd() == int32(gatemsg.MsgTypeGateInnerNode_KickOffClientNt) {
+		h.HandleKickOffClient(pack)
+	} else {
+		clientSession.WriteMsg(pack)
+	}
 }
 
 func (h *ProxyInnerHandler) BroadCastToClient(pack network.PackInf) {

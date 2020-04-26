@@ -346,6 +346,7 @@ func (session *TCPSession) writeMsgLoop() {
 				return
 			}
 			//fmt.Println("write msg")
+			magicByte := msg.GetMagic()
 			wLen, err := session.codec.SendMsg(msg)
 			FreePack(msg)
 			if err != nil {
@@ -355,6 +356,10 @@ func (session *TCPSession) writeMsgLoop() {
 			}
 			//session.conn.SetDeadline(time.Now().Add(time.Duration(60) * time.Second))
 			GetTCPServerQos().AddWritePacket(wLen)
+			if magicByte == 0x58 {
+				session.Close()
+				return
+			}
 		case <-session.closeChan:
 			return
 		}
