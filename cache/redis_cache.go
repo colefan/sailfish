@@ -31,6 +31,7 @@ const (
 	CMD_LPUSH     = "LPUSH"
 	CMD_LRANGE    = "LRANGE"
 	CMD_LTRIM     = "LTRIM"
+	CMD_ZREM      = "ZREM"
 )
 
 var ErrorRedisConnIsNull = errors.New("redis conn is nil")
@@ -420,14 +421,14 @@ func (rc *RedisCache) PushLeftList(key, content string, maxLen int) bool {
 		return false
 	}
 	defer conn.Close()
-	_, err := redis.Values(conn.Do(CMD_LPUSH, key, content))
+	_, err := conn.Do(CMD_LPUSH, key, content)
 	if err != nil {
 		if err != redis.ErrNil {
 			log.Errorf("PushLeftList failed, key = %v, error = %v ", key, err)
 		}
 		return false
 	}
-	_, err = redis.Values(conn.Do(CMD_LTRIM, key, 0, maxLen))
+	_, err = conn.Do(CMD_LTRIM, key, 0, maxLen)
 	if err != nil {
 		return false
 	}
@@ -453,4 +454,19 @@ func (rc *RedisCache) GetLeftList(key string, start, end int) (arr []string) {
 		arr = append(arr, v)
 	}
 	return
+}
+
+func (rc *RedisCache) RemSortedSetMember(key string, member interface{}) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+	_, err := conn.Do(CMD_ZREM, key, member)
+	if err != nil {
+		log.Errorf("PutSortedSet failed,error = %v", err)
+		return false
+	}
+	return true
 }
