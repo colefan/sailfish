@@ -7,7 +7,7 @@ var (
 )
 
 const (
-	HeaderSize = 20
+	HeaderSize = 24
 )
 
 // Header 消息头
@@ -19,13 +19,15 @@ type Header struct {
 	Cmd          int32  //命令号
 	CheckCode    uint32 //校验码，预留不填
 	UID          uint64 //用户服务端转发时包装
+	MsgSeq       uint32 //消息序列号
 }
 
 // Message 消息
 type Message struct {
-	Head    *Header //消息头
-	data    []byte  //消息内容
-	session *TCPSession
+	Head      *Header //消息头
+	data      []byte  //消息内容
+	session   *TCPSession
+	timestamp int64 //消息生成时间戳,辅助作用，传输过程丢失
 }
 
 // NewMessage create an empty message
@@ -39,6 +41,7 @@ func NewMessage() *Message {
 	msg.Head.Cmd = 0
 	msg.Head.CheckCode = 0
 	msg.Head.UID = 0
+	msg.Head.MsgSeq = 0
 	return &msg
 }
 
@@ -50,6 +53,7 @@ func (m *Message) resetHeader() {
 	m.Head.Cmd = 0
 	m.Head.CheckCode = 0
 	m.Head.UID = 0
+	m.Head.MsgSeq = 0
 }
 
 // Reset 重置消息
@@ -140,4 +144,20 @@ func (c *Message) GetVersion() byte {
 
 func (c *Message) SetVersion(v byte) {
 	c.Head.Version = v
+}
+
+func (c *Message) GetMsgSeq() uint32 {
+	return c.Head.MsgSeq
+}
+
+func (c *Message) SetMsgSeq(seq uint32) {
+	c.Head.MsgSeq = seq
+}
+
+func (c *Message) SetTimestamp(s int64) {
+	c.timestamp = s
+}
+
+func (c *Message) GetTimestamp() int64 {
+	return c.timestamp
 }

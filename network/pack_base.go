@@ -20,4 +20,8 @@ type PackInf interface {
 	GetData() []byte
 	SetData([]byte)
 	SetTargetType(byte)
+	SetMsgSeq(seq uint32)
+	GetMsgSeq() uint32
+	GetTimestamp() int64
+	SetTimestamp(s int64)
 }
