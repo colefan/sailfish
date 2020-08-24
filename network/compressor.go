@@ -7,11 +7,10 @@ import (
 )
 
 // CompressorType 压缩类型
-type CompressorType byte
 
 const (
 	// None 无压缩
-	None CompressorType = iota
+	None = iota
 	// Gzip gzip压缩
 	Gzip
 )

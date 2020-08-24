@@ -14,6 +14,7 @@ type PackInf interface {
 	GetTCPSession() *TCPSession
 	SetUID(uid uint64)
 	SetMagic(m byte)
+	SetCompressType(c byte)
 	Reset()
 	CheckMessageValidate() bool
 	GetPackLen() int

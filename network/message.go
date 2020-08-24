@@ -161,3 +161,7 @@ func (c *Message) SetTimestamp(s int64) {
 func (c *Message) GetTimestamp() int64 {
 	return c.timestamp
 }
+
+func (c *Message) SetCompressType(cTyp byte) {
+	c.Head.CompressType = cTyp
+}
