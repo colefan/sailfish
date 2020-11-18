@@ -24,6 +24,7 @@ enum ErrorCode
     CmdCheckInvalid = 5;//
     AuthCheckInvalid  = 6;
     HasNoClientDataWhenRoute = 7;
+    BlackMailAbandon         = 8;//黑名单被挡住不能登录，请用友好提示语
 }
 
 message GateErrorNt

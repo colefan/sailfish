@@ -262,7 +262,7 @@ func (h *ClientHandler) CheckPack(pack network.PackInf) bool {
 	} else {
 		session := pack.GetTCPSession()
 		if user, ok := pack.GetTCPSession().UserData().(*ClientUserData); ok {
-			if user.UID != pack.GetUID() {
+			if user.UID != pack.GetUID() || pack.GetUID() <= 0 {
 				log.Errorf("user req.uid[%d] != user.uid[%d] ", pack.GetUID(), user.UID)
 				return false
 			}
