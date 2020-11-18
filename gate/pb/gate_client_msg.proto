@@ -39,7 +39,7 @@ message ClientHandShakeReq
     string  client_version      = 2;// 客户端版本
     string  client_channel      = 3;
     string  client_auth         = 4;//特定客户端鉴权码，预留
-    string  account             = 5;//账号
+    uint64  account_id          = 5;//账号
     uint64  uid                 = 6;//角色ID
 }
 

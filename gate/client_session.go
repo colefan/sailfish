@@ -24,6 +24,7 @@ type ClientUserData struct {
 	ClientAuth               string
 	LastBeatTime             int64
 	KickOffWhenRepeatedLogin bool
+	AccountID                uint64
 
 	ProxyNodeList ProxyNodeTypeMapper
 }
