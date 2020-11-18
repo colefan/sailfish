@@ -102,6 +102,8 @@ func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
 			user.Version = reqMsg.ClientVersion
 			user.ClientAuth = reqMsg.ClientAuth
 			user.Status = ClientStatusHandShaked
+			user.Account = reqMsg.Account
+			user.UID = reqMsg.Uid
 			var respMsg gatemsg.ClientHandShakeResp
 			respMsg.ServerTimeSecond = int32(time.Now().Unix())
 			respMsg.Token = ""
