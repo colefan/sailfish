@@ -18,6 +18,12 @@ const (
 	DefaultMaxNum int = 5000
 )
 
+const (
+	TagProd = "prod"
+	TagDev  = "dev"
+	TagTest = "test"
+)
+
 //Gate a gate for routing and load balance
 type Gate struct {
 	MaxClientConnNum int
@@ -32,6 +38,7 @@ type Gate struct {
 	clientProtocol   network.Protocol
 	serverProtocol   network.Protocol
 	conf             *config.IniConfig
+	Tag              string
 }
 
 //GetClientServerSessionMgr get session manager
@@ -93,6 +100,7 @@ func (g *Gate) Init() error {
 		log.Error("parse ./gate.ini error " + err.Error())
 		return err
 	}
+	g.Tag = g.conf.String("tag")
 	log.Info("gate config parsing success.")
 
 	g.clientHandler = new(ClientHandler)

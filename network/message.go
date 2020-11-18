@@ -7,7 +7,7 @@ var (
 )
 
 const (
-	HeaderSize = 24
+	HeaderSize = 30
 )
 
 // Header 消息头
@@ -20,6 +20,7 @@ type Header struct {
 	CheckCode    uint32 //校验码，预留不填
 	UID          uint64 //用户服务端转发时包装
 	MsgSeq       uint32 //消息序列号
+	SessionID    uint64 //物理会话ID
 }
 
 // Message 消息
@@ -42,6 +43,7 @@ func NewMessage() *Message {
 	msg.Head.CheckCode = 0
 	msg.Head.UID = 0
 	msg.Head.MsgSeq = 0
+	msg.Head.SessionID = 0
 	return &msg
 }
 
@@ -54,6 +56,7 @@ func (m *Message) resetHeader() {
 	m.Head.CheckCode = 0
 	m.Head.UID = 0
 	m.Head.MsgSeq = 0
+	m.Head.SessionID = 0
 }
 
 // Reset 重置消息
@@ -164,4 +167,12 @@ func (c *Message) GetTimestamp() int64 {
 
 func (c *Message) SetCompressType(cTyp byte) {
 	c.Head.CompressType = cTyp
+}
+
+func (c *Message) SetSessionID(sessionID uint64) {
+	c.Head.SessionID = sessionID
+}
+
+func (c *Message) GetSessionID() uint64 {
+	return c.Head.SessionID
 }

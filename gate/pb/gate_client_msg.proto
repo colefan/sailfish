@@ -10,7 +10,7 @@ message MsgTypeGateClient{
         ClientBeatReq       = 0xEF03;   //客户端心跳请求
         ClientBeatResp      = 0xEF04;   //客户端心跳响应
         GateErrorNt         = 0xEF0A;     //网关错误通知
-        IdEnd               = 0xE10;      //网关消息结束ID
+        IdEnd               = 0xEF10;      //网关消息结束ID
     }
 }
 
@@ -20,6 +20,10 @@ enum ErrorCode
 	UnmarshalFailed = 1;
     NoTargetServer = 2;
     HandShakeFailed = 3;
+    HandShakeFailedVersionNotMatched = 4;
+    CmdCheckInvalid = 5;//
+    AuthCheckInvalid  = 6;
+    HasNoClientDataWhenRoute = 7;
 }
 
 message GateErrorNt

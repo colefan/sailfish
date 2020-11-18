@@ -91,14 +91,15 @@ func (c *DefaultSocketCodec) ReceiveMsg() (network.PackInf, error) {
 		msg.Head.CheckCode = binary.LittleEndian.Uint32(buf[8:12])
 		msg.Head.UID = binary.LittleEndian.Uint64(buf[12:20])
 		msg.Head.MsgSeq = binary.LittleEndian.Uint32(buf[20:24])
+		msg.Head.SessionID = binary.LittleEndian.Uint64(buf[24:30])
 	} else {
 		msg.Head.Cmd = int32(binary.BigEndian.Uint32(buf[4:8]))
 		msg.Head.CheckCode = binary.BigEndian.Uint32(buf[8:12])
 		msg.Head.UID = binary.BigEndian.Uint64(buf[12:20])
 		msg.Head.MsgSeq = binary.BigEndian.Uint32(buf[20:24])
-
+		msg.Head.SessionID = binary.BigEndian.Uint64(buf[24:30])
 	}
-	msg.SetData(buf[24:])
+	msg.SetData(buf[30:])
 	return pack, nil
 
 }
@@ -124,11 +125,14 @@ func (c *DefaultSocketCodec) SendMsg(msg network.PackInf) (int, error) {
 		binary.LittleEndian.PutUint32(msgHeadData[8:], uint32(msg.GetCheckCode()))
 		binary.LittleEndian.PutUint64(msgHeadData[12:], msg.GetUID())
 		binary.LittleEndian.PutUint32(msgHeadData[20:], msg.GetMsgSeq())
+		binary.LittleEndian.PutUint64(msgHeadData[24:], msg.GetSessionID())
 	} else {
 		binary.BigEndian.PutUint32(msgHeadData[4:], uint32(msg.GetCmd()))
 		binary.BigEndian.PutUint32(msgHeadData[8:], uint32(msg.GetCheckCode()))
 		binary.BigEndian.PutUint64(msgHeadData[12:], msg.GetUID())
 		binary.BigEndian.PutUint32(msgHeadData[20:], msg.GetMsgSeq())
+		binary.BigEndian.PutUint64(msgHeadData[24:], msg.GetSessionID())
+
 	}
 	if nLen > c.p.maxWriteSize {
 		return 0, ErrFixHeadTooLargePacket
@@ -209,13 +213,15 @@ func (c *DefaultWebsocketCodec) ReceiveMsg() (network.PackInf, error) {
 		msg.Head.CheckCode = binary.LittleEndian.Uint32(p[8:])
 		msg.Head.UID = binary.LittleEndian.Uint64(p[12:])
 		msg.Head.MsgSeq = binary.LittleEndian.Uint32(p[20:])
+		msg.Head.SessionID = binary.LittleEndian.Uint64(p[24:])
 	} else {
 		msg.Head.Cmd = int32(binary.BigEndian.Uint32(p[4:]))
 		msg.Head.CheckCode = binary.BigEndian.Uint32(p[8:])
 		msg.Head.UID = binary.BigEndian.Uint64(p[12:])
 		msg.Head.MsgSeq = binary.BigEndian.Uint32(p[20:])
+		msg.Head.SessionID = binary.BigEndian.Uint64(p[24:])
 	}
-	msg.SetData(p[24:])
+	msg.SetData(p[30:])
 	// pack.SetPackBody(string(p))
 
 	return pack, nil
@@ -237,13 +243,14 @@ func (c *DefaultWebsocketCodec) SendMsg(msg network.PackInf) (int, error) {
 		binary.LittleEndian.PutUint32(msgHeadData[8:], msg.GetCheckCode())
 		binary.LittleEndian.PutUint64(msgHeadData[12:], msg.GetUID())
 		binary.LittleEndian.PutUint32(msgHeadData[20:], msg.GetMsgSeq())
+		binary.LittleEndian.PutUint64(msgHeadData[24:], msg.GetSessionID())
 
 	} else {
 		binary.BigEndian.PutUint32(msgHeadData[4:], uint32(msg.GetCmd()))
 		binary.BigEndian.PutUint32(msgHeadData[8:], msg.GetCheckCode())
 		binary.BigEndian.PutUint64(msgHeadData[12:], msg.GetUID())
 		binary.BigEndian.PutUint32(msgHeadData[20:], msg.GetMsgSeq())
-
+		binary.BigEndian.PutUint64(msgHeadData[24:], msg.GetSessionID())
 	}
 	nLen := network.HeaderSize
 	bodyData := msg.GetData()

@@ -65,6 +65,13 @@ func (h *ClientHandler) SessionClose(session *network.TCPSession) {
 // HandleMsg 处理消息请求
 func (h *ClientHandler) HandleMsg(pack network.PackInf) {
 	log.Debugf("gate recv client cmd = 0x%0x", pack.GetCmd())
+	if false == h.CheckPack(pack) {
+		ntpack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_CmdCheckInvalid))
+		pack.GetTCPSession().WriteMsg(ntpack)
+		network.FreePack(pack)
+		return
+	}
+
 	switch pack.GetCmd() {
 	case int32(gatemsg.MsgTypeGateClient_ClientHandShakeReq):
 		h.HandleClientShakeReq(pack)
@@ -99,6 +106,7 @@ func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
 			respMsg.ServerTimeSecond = int32(time.Now().Unix())
 			respMsg.Token = ""
 			respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateClient_ClientHandShakeResp), &respMsg)
+			respPack.SetSessionID(pack.GetTCPSession().ID())
 			// just for debug ~
 			// message := respPack.(*network.Message)
 			// message.SetMagic(0x08)
@@ -188,6 +196,9 @@ func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 				pack.GetTCPSession().WriteMsg(errPack)
 			}
 		}
+	} else {
+		errPack := ErrorClientPack(pack.GetCmd(), int32(gatemsg.ErrorCode_HasNoClientDataWhenRoute))
+		pack.GetTCPSession().WriteMsg(errPack)
 	}
 
 	network.FreePack(pack)
@@ -239,4 +250,43 @@ func notifyClientCloseReq(serverType int32, serverInfo *ProxyServerNode, user *C
 		}
 	}
 
+}
+
+func (h *ClientHandler) CheckPack(pack network.PackInf) bool {
+	if pack.GetCmd() == int32(gatemsg.MsgTypeGateClient_ClientHandShakeReq) {
+		return true
+	} else if pack.GetCmd() == int32(gatemsg.MsgTypeGateClient_ClientBeatReq) {
+		return true
+	} else {
+		session := pack.GetTCPSession()
+		if user, ok := pack.GetTCPSession().UserData().(*ClientUserData); ok {
+			if user.UID != pack.GetUID() {
+				log.Errorf("user req.uid[%d] != user.uid[%d] ", pack.GetUID(), user.UID)
+				return false
+			}
+		} else {
+			log.Error("session has no userdata")
+			return false
+		}
+
+		if session.ID() != pack.GetSessionID() {
+			log.Errorf("usr req.sid[%d] != session.sid[%d] ", pack.GetSessionID(), session.ID())
+			return false
+		}
+
+		return true
+	}
+
+}
+
+// 检查IP白名单
+func (h *ClientHandler) CheckIpBlackMail() bool {
+	//TODO 业务方自己处理
+	return true
+}
+
+// 检查账户黑白名单
+func (h *ClientHandler) CheckAccountBlackMail() bool {
+	//TODO 业务方自己处理
+	return true
 }

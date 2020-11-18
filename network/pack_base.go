@@ -25,4 +25,6 @@ type PackInf interface {
 	GetMsgSeq() uint32
 	GetTimestamp() int64
 	SetTimestamp(s int64)
+	SetSessionID(id uint64)
+	GetSessionID() uint64
 }
