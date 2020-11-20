@@ -91,13 +91,13 @@ func (c *DefaultSocketCodec) ReceiveMsg() (network.PackInf, error) {
 		msg.Head.CheckCode = binary.LittleEndian.Uint32(buf[8:12])
 		msg.Head.UID = binary.LittleEndian.Uint64(buf[12:20])
 		msg.Head.MsgSeq = binary.LittleEndian.Uint32(buf[20:24])
-		msg.Head.SessionID = binary.LittleEndian.Uint64(buf[24:30])
+		msg.Head.SessionID = binary.LittleEndian.Uint64(buf[24:32])
 	} else {
 		msg.Head.Cmd = int32(binary.BigEndian.Uint32(buf[4:8]))
 		msg.Head.CheckCode = binary.BigEndian.Uint32(buf[8:12])
 		msg.Head.UID = binary.BigEndian.Uint64(buf[12:20])
 		msg.Head.MsgSeq = binary.BigEndian.Uint32(buf[20:24])
-		msg.Head.SessionID = binary.BigEndian.Uint64(buf[24:30])
+		msg.Head.SessionID = binary.BigEndian.Uint64(buf[24:32])
 	}
 	msg.SetData(buf[30:])
 	return pack, nil
