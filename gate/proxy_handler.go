@@ -125,7 +125,7 @@ func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 	respMsg.Time = int32(time.Now().Unix())
 
 	if err := codec.ProtobufDecoder(pack, &reqMsg); err != nil {
-		log.Error("RegServerReq decode failed:", err)
+		log.Error("RegServerReq decode failed ，data = %v,err:%v", pack.GetData(), err)
 		respMsg.Code = -1001
 		respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateInnerNode_RegServerResp), &respMsg)
 		pack.GetTCPSession().WriteMsg(respPack)

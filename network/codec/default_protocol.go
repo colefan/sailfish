@@ -99,7 +99,7 @@ func (c *DefaultSocketCodec) ReceiveMsg() (network.PackInf, error) {
 		msg.Head.MsgSeq = binary.BigEndian.Uint32(buf[20:24])
 		msg.Head.SessionID = binary.BigEndian.Uint64(buf[24:32])
 	}
-	msg.SetData(buf[30:])
+	msg.SetData(buf[32:])
 	return pack, nil
 
 }
@@ -221,7 +221,7 @@ func (c *DefaultWebsocketCodec) ReceiveMsg() (network.PackInf, error) {
 		msg.Head.MsgSeq = binary.BigEndian.Uint32(p[20:])
 		msg.Head.SessionID = binary.BigEndian.Uint64(p[24:])
 	}
-	msg.SetData(p[30:])
+	msg.SetData(p[32:])
 	// pack.SetPackBody(string(p))
 
 	return pack, nil
