@@ -7,7 +7,7 @@ var (
 )
 
 const (
-	HeaderSize = 30
+	HeaderSize = 32
 )
 
 // Header 消息头
