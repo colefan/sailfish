@@ -33,6 +33,7 @@ message RegServerReq
 message RegServerResp 
 {
     int32   time        = 1;
+    int32   code        = 2;
 }
 
 message ServerBeatReq{

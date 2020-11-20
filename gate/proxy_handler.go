@@ -120,13 +120,23 @@ func (h *ProxyInnerHandler) BroadCastToClient(pack network.PackInf) {
 // HandleRegisterReq handle proxy req
 func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 	var reqMsg gatemsg.RegServerReq
+
+	var respMsg gatemsg.RegServerResp
+	respMsg.Time = int32(time.Now().Unix())
+
 	if err := codec.ProtobufDecoder(pack, &reqMsg); err != nil {
 		log.Error("RegServerReq decode failed:", err)
+		respMsg.Code = -1001
+		respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateInnerNode_RegServerResp), &respMsg)
+		pack.GetTCPSession().WriteMsg(respPack)
 		network.FreePack(pack)
 		return
 	}
 	sessionData := pack.GetTCPSession().UserData().(*ProxyServerNode)
 	if sessionData == nil {
+		respMsg.Code = -1002
+		respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateInnerNode_RegServerResp), &respMsg)
+		pack.GetTCPSession().WriteMsg(respPack)
 		network.FreePack(pack)
 		return
 	}
@@ -156,8 +166,6 @@ func (h *ProxyInnerHandler) HandleRegisterReq(pack network.PackInf) {
 		GetProxyServerStoreInst().RegisterProxyNode(sessionData)
 	}
 
-	var respMsg gatemsg.RegServerResp
-	respMsg.Time = int32(time.Now().Unix())
 	respPack := codec.ProtobufEncoder(int32(gatemsg.MsgTypeGateInnerNode_RegServerResp), &respMsg)
 	pack.GetTCPSession().WriteMsg(respPack)
 	network.FreePack(pack)
