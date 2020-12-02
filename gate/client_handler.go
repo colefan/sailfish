@@ -95,6 +95,7 @@ func (h *ClientHandler) HandleClientShakeReq(pack network.PackInf) {
 		network.FreePack(pack)
 		return
 	}
+	log.Debugf("client handshakeReq = %v", reqMsg)
 	if user, ok := pack.GetTCPSession().UserData().(*ClientUserData); ok {
 		if user.Status == ClientStatusInit {
 			user.ChannleID = reqMsg.ClientChannel
@@ -168,7 +169,8 @@ func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 			}
 			user.UID = pack.GetUID()
 		}
-
+		// ddd
+		log.Debug("66666666    pack.SessionID = ", pack.GetSessionID(), ",SID = ", session.ID(), " pack.UID = ", pack.GetUID(), "user.UID = ", user.UID)
 		if user.UID != 0 {
 			pack.SetUID(user.UID)
 			// pack.SetMagic(0x08 + 0x01)
@@ -176,7 +178,7 @@ func (h *ClientHandler) ForwordToProxyNode(pack network.PackInf) {
 		} else {
 			// pack.SetMagic(0x08)
 			pack.SetTargetType(UIDTypeSession)
-			pack.SetUID(session.ID())
+			// pack.SetUID(session.ID())
 		}
 		if node, ok2 := user.ProxyNodeList[targetServer]; ok2 {
 			// node.Session

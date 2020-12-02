@@ -64,9 +64,11 @@ func (h *ProxyInnerHandler) HandleMsg(pack network.PackInf) {
 func (h *ProxyInnerHandler) HandleKickOffClient(pack network.PackInf) {
 	uid := pack.GetUID()
 	uidType := pack.GetTargetType()
+	log.Warnf("kick off pack.SID = %d,pack.UID = %d, pack.TargetType = %v", pack.GetSessionID(), pack.GetUID(), pack.GetTargetType())
+
 	var clientSession *network.TCPSession
 	if uidType == UIDTypeSession {
-		clientSession = GetClientSessionMntInst().FindBySessionID(uid)
+		clientSession = GetClientSessionMntInst().FindBySessionID(pack.GetSessionID())
 	} else {
 		clientSession = GetClientSessionMntInst().FindByUID(uid)
 	}
@@ -97,12 +99,14 @@ func (h *ProxyInnerHandler) ForwordToClient(pack network.PackInf) {
 	uidType := pack.GetTargetType()
 	var clientSession *network.TCPSession
 	if uidType == UIDTypeSession {
-		clientSession = GetClientSessionMntInst().FindBySessionID(uid)
+		clientSession = GetClientSessionMntInst().FindBySessionID(pack.GetSessionID())
 	} else {
 		clientSession = GetClientSessionMntInst().FindByUID(uid)
 	}
+
+	log.Warnf("gate...ForwordToClient,pack.SID = %d,pack.UID = %d,pack.Type = %d,cmd = 0x%x", pack.GetSessionID(), pack.GetUID(), pack.GetTargetType(), pack.GetCmd())
 	if clientSession == nil {
-		log.Error("client session is nil forword to client,uid = %d,uidType = %d,cmd = 0x%x", uid, uidType, pack.GetCmd())
+		log.Errorf("client session is nil forword to client,uid = %d,uidType = %d,cmd = 0x%x", uid, uidType, pack.GetCmd())
 		network.FreePack(pack)
 		return
 	}

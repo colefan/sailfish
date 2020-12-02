@@ -76,7 +76,12 @@ func (mnt *ClientSessionMnt) DelSession(session *network.TCPSession) {
 			userMap := &mnt.userSessionMap[user.UID%userSessionGroup]
 			userMap.Lock()
 			defer userMap.Unlock()
-			delete(userMap.sessions, user.UID)
+			if sessionByUID := userMap.sessions[user.UID]; sessionByUID != nil {
+				if sessionByUID.ID() == session.ID() {
+					delete(userMap.sessions, user.UID)
+				}
+			}
+
 		}
 	}
 
