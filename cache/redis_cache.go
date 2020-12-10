@@ -356,9 +356,9 @@ func (rc *RedisCache) SetSIsMember(key, field string) bool {
 	}
 	// log.Errorf(" res = %v err = %v ", res, err)
 	if res < 1 {
-		return true
+		return false
 	}
-	return false
+	return true
 }
 
 func (rc *RedisCache) PutSortedSet(key string, score float64, member interface{}) bool {
