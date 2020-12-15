@@ -152,20 +152,20 @@ func (c *Client) closeCallback(session *TCPSession) {
 	if c.sessionClosedCallback != nil {
 		c.sessionClosedCallback(session)
 	}
-	//atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
+	atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
 
 	if c.autoReconnect {
 		if c.mode == MsgHandleModeEvent {
 			log.Info("reconnect swap")
-			atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
-			log.Info("reconnect add")
-			c.reconnectWait.Add(1)
-			closePack := GetPooledPack() //new(BasePack)
-			closePack.SetCmd(9999)
-			closePack.SetMagic(MagicNumberClientInner)
-			c.dispatcher.PostData(closePack, nil)
-			log.Info("reconnect wait")
-			c.reconnectWait.Wait()
+			// atomic.CompareAndSwapInt32(&c.clientClosed, 0, 1)
+			// log.Info("reconnect add")
+			// c.reconnectWait.Add(1)
+			// closePack := GetPooledPack() //new(BasePack)
+			// closePack.SetCmd(9999)
+			// closePack.SetMagic(MagicNumberClientInner)
+			// c.dispatcher.PostData(closePack, nil)
+			// log.Info("reconnect wait")
+			// c.reconnectWait.Wait()
 			go c.Reconnect()
 		} else {
 			go c.Reconnect()
