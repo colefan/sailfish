@@ -92,7 +92,7 @@ func (mnt *ClientSessionMnt) GetGroupSize() int {
 }
 
 func (mnt *ClientSessionMnt) CopyUserSessions(groupId int) []*network.TCPSession {
-	if groupId <= 0 || groupId >= userSessionGroup {
+	if groupId < 0 || groupId >= userSessionGroup {
 		return nil
 	}
 
