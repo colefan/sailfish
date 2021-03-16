@@ -208,11 +208,13 @@ func (session *TCPSession) WriteMsg(msg PackInf) error {
 }
 
 func (session *TCPSession) checkPerSecond() bool {
+	tnow := time.Now().Unix()
 	if session.needCheckPerSecond {
-		if time.Now().Unix() == session.lastActiveTime {
+		if tnow == session.lastActiveTime {
 			session.perSecondCount++
 		} else {
 			session.perSecondCount = 1
+			session.lastActiveTime = tnow
 		}
 
 		if session.perSecondCount > session.maxReadMsgCountPerSecond {
@@ -220,6 +222,8 @@ func (session *TCPSession) checkPerSecond() bool {
 			return false
 		}
 
+	} else {
+		session.lastActiveTime = tnow
 	}
 
 	return true
@@ -246,7 +250,6 @@ func (session *TCPSession) readMsgFromSocket() (PackInf, error) {
 			return nil, errors.New("too many request per second ")
 		}
 		pack.SetTCPSession(session)
-		session.lastActiveTime = time.Now().Unix()
 		if !session.withHandler {
 			session.dispatcher.PostData(pack, session)
 		}
@@ -268,7 +271,7 @@ func (session *TCPSession) readMsgFromWebSocket() (PackInf, error) {
 			return nil, errors.New("too many request per second ")
 		}
 		pack.SetTCPSession(session)
-		session.lastActiveTime = time.Now().Unix()
+		// session.lastActiveTime = time.Now().Unix()
 		if !session.withHandler {
 			session.dispatcher.PostData(pack, session)
 		}
@@ -397,8 +400,14 @@ func (session *TCPSession) readMsgLoop() {
 			}
 		}
 		msg, err := session.codec.ReceiveMsg()
+
 		if err != nil {
 			log.Error("readMsgLoop read error :" + err.Error())
+			session.Close()
+			return
+		}
+		if false == session.checkPerSecond() {
+			log.Errorf("too many request per second:uid-%d", msg.GetUID())
 			session.Close()
 			return
 		}
