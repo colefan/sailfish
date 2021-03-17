@@ -52,6 +52,7 @@ type TCPSession struct {
 	token                       string
 	handler                     SessionHandler
 	handleMode                  MsgHandlerModeType
+	lastReadTime int64 
 }
 
 //newTCPSession private interface
@@ -208,13 +209,13 @@ func (session *TCPSession) WriteMsg(msg PackInf) error {
 }
 
 func (session *TCPSession) checkPerSecond() bool {
-	tnow := time.Now().Unix()
 	if session.needCheckPerSecond {
-		if tnow == session.lastActiveTime {
+		tnow := time.Now().Unix()
+		if tnow == session.lastReadTime {
 			session.perSecondCount++
 		} else {
 			session.perSecondCount = 1
-			session.lastActiveTime = tnow
+			session.lastReadTime = tnow
 		}
 
 		if session.perSecondCount > session.maxReadMsgCountPerSecond {
@@ -222,10 +223,7 @@ func (session *TCPSession) checkPerSecond() bool {
 			return false
 		}
 
-	} else {
-		session.lastActiveTime = tnow
-	}
-
+	} 
 	return true
 }
 
@@ -271,7 +269,7 @@ func (session *TCPSession) readMsgFromWebSocket() (PackInf, error) {
 			return nil, errors.New("too many request per second ")
 		}
 		pack.SetTCPSession(session)
-		// session.lastActiveTime = time.Now().Unix()
+		session.lastActiveTime = time.Now().Unix()
 		if !session.withHandler {
 			session.dispatcher.PostData(pack, session)
 		}
@@ -419,8 +417,8 @@ func (session *TCPSession) readMsgLoop() {
 			}
 		} else {
 			if session.dispatcher != nil {
-				session.dispatcher.PostData(msg, session)
 				session.lastActiveTime = time.Now().Unix()
+				session.dispatcher.PostData(msg, session)
 			}
 		}
 	}
