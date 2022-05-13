@@ -29,6 +29,7 @@ type Message struct {
 	data      []byte  //消息内容
 	session   *TCPSession
 	timestamp int64 //消息生成时间戳,辅助作用，传输过程丢失
+	attachObj interface{}
 }
 
 // NewMessage create an empty message
@@ -57,12 +58,14 @@ func (m *Message) resetHeader() {
 	m.Head.UID = 0
 	m.Head.MsgSeq = 0
 	m.Head.SessionID = 0
+
 }
 
 // Reset 重置消息
 func (m *Message) Reset() {
 	m.resetHeader()
 	m.data = nil
+	m.attachObj = nil
 	// if m.data != nil {
 	// 	m.data = m.data[:0]
 	// }
@@ -175,4 +178,12 @@ func (c *Message) SetSessionID(sessionID uint64) {
 
 func (c *Message) GetSessionID() uint64 {
 	return c.Head.SessionID
+}
+
+func (c *Message) SetAttachmentData(data interface{}) {
+	c.attachObj = data
+}
+
+func (c *Message) GetAttachmentData() interface{} {
+	return c.attachObj
 }

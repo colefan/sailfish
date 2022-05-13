@@ -27,4 +27,6 @@ type PackInf interface {
 	SetTimestamp(s int64)
 	SetSessionID(id uint64)
 	GetSessionID() uint64
+	SetAttachmentData(interface{})
+	GetAttachmentData() interface{}
 }
