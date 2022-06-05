@@ -470,3 +470,43 @@ func (rc *RedisCache) RemSortedSetMember(key string, member interface{}) bool {
 	}
 	return true
 }
+
+func (rc *RedisCache) SetNX(key string, value string) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+	retStr, err := redis.String(conn.Do("setnx", key, value))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("SetNX failed, error = %v ", err)
+		}
+		return false
+	}
+	if retStr == "" || retStr == "nil" || retStr == "NIL" {
+		return false
+	}
+	return true
+}
+
+func (rc *RedisCache) SetNXWithExpireTime(key string, value string, expireSeconds int) bool {
+	conn := rc.getConn()
+	if conn == nil {
+		log.Errorf("conn is nil")
+		return false
+	}
+	defer conn.Close()
+	retStr, err := redis.String(conn.Do("set", key, value, "ex", expireSeconds, "nx"))
+	if err != nil {
+		if err != redis.ErrNil {
+			log.Errorf("SetNXWithExpireTime failed, error = %v ", err)
+		}
+		return false
+	}
+	if retStr == "" || retStr == "nil" || retStr == "NIL" {
+		return false
+	}
+	return true
+}
